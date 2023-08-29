@@ -3,6 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 
+//TODO - url 재 설정하기
 const API_URL='218.232.175.4';
 
 //Action Types
@@ -150,7 +151,7 @@ const deleteUserDB = () => {
       });
   };
 };
-
+// TODO - 유저 정보 수정
 //로그인 유지 API
 //클라이언트 로컬저장소에 토큰이 존재하는 경우
 //서버에서 토큰을 받아 유효성 검증 후 유효하다면 유저 정보를 주어 자동 로그인
