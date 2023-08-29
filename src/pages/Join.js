@@ -1,6 +1,133 @@
-import { useState } from "react";
+import React,{ useState } from "react";
 import styled from "styled-components";
+import axios from "axios";
 
+import Swal from "sweetalert2";
+import { useDispatch } from "react-redux";
+
+import { actionCreators as userAction } from "../redux/userApi";
+
+const Join = () => {
+  const dispatch = useDispatch();
+
+  const [id, setId] = useState(""); // 유저 이메일
+  const [verifiedId, setVerifiedId] = React.useState("");
+  const [password, setPassword] = useState(""); // 유저 비밀번호
+  const [confirmPassword, setConfirmPassword] = React.useState("");
+  const [isAccount] = useState(false); // 계정 존재 여부 체크 (true: 계정있음, false: 계정없음)
+  const [error, setError] = useState(null); // 로그인 또는 회원가입 에러메시지
+
+//이메일 중복 검사 API
+const checkIdDup= (id) => {
+  axios({
+    method:"post",
+    url:"API_URL/user/checkId",
+    data:{
+      id:id
+    },
+  })
+  .then((response) => {
+    if (response.data.msg === "success") {
+      setVerifiedId(id);
+    } else {
+      Swal.fire({
+        text: "이미 가입된 이메일입니다.",
+        confirmButtonColor: "#E3344E",
+      });
+    }
+  })
+  .catch((error) => {
+    console.log(error);
+    Swal.fire({
+      text: "잠시 후 다시 시도해주세요.",
+      confirmButtonColor: "rgb(118, 118, 118)",
+    });
+  });
+
+}
+const inputGuide = () => {
+  Swal.fire({
+    text: "정보를 입력해주세요.",
+    confirmButtonColor: "#E3344E",
+  });
+};
+
+  // 이메일, 비밀번호로 계정 생성후 로그인
+  const onClickRegister = async (event) => {
+    event.preventDefault();
+    if (id !== verifiedId) {
+      Swal.fire({
+        text: "이메일 중복확인이 필요합니다.",
+        confirmButtonColor: "#E3344E",
+      });
+    } else {
+      dispatch(userAction.joinDB(verifiedId, confirmPassword));
+    }
+  };
+
+  return (
+    <Container>
+      <LoginFormContent>
+        <LoginFormTag onSubmit={onClickRegister}>
+          <LoginInputTag name="idInput" type="text" placeholder="이메일" onChange={e=>setId(e.target.value)} value={id} required></LoginInputTag>
+          <button onClick={() => {
+                    checkIdDup(id);
+                  }}
+                  //disabled={!emailCheck(id) ? true : false}
+                >
+                  {verifiedId && verifiedId === id ? (
+                    <React.Fragment>
+                      사용
+                      <br />
+                      가능
+                    </React.Fragment>
+                  ) : (
+                    <React.Fragment>
+                      중복
+                      <br />
+                      확인
+                    </React.Fragment>
+                  )}
+                </button>
+          <LoginInputTag name="passwordInput" type="password" placeholder="비밀번호" onChange={e=>setPassword(e.target.value)} value={password} required></LoginInputTag>
+          <LoginInputTag name="passwordInput" type="password" placeholder="비밀번호 재입력" onChange={e=>setConfirmPassword(e.target.value)} value={password} required></LoginInputTag>
+
+          {confirmPassword && password !== confirmPassword ? (
+                <span color="#E2344E" size="11px" margin="0 10px">
+                  비밀번호가 일치하지 않습니다.
+                </span>
+              ) : (
+                ""
+              )}
+          {verifiedId &&
+            id.length > 2 &&
+            password &&
+            password === confirmPassword ? (
+              <LoginSubmitTag type="submit" onClick={onClickRegister} value="회원가입"></LoginSubmitTag>
+
+            ) : (
+              <button onClick={inputGuide}
+              >
+                회원가입
+              </button>
+            )}
+
+        </LoginFormTag>
+      </LoginFormContent>
+    </ Container>
+  )
+};
+
+export default Join;
+const Container = styled.div`
+  width: 100vw;
+  height: 100vh;
+  margin: auto;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+`;
 const LoginFormContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -64,60 +191,3 @@ const ErrorMessage = styled.h3`
   color: #eb4d4b;
   font-weight: bold;
 `;
-
-const Join = () => {
-  //const history = useHistory();
-  const [email, setEmail] = useState(""); // 유저 이메일
-  const [password, setPassword] = useState(""); // 유저 비밀번호
-  const [displayName, setDisplayName] = useState(""); // 유저 닉네임
-  const [isAccount] = useState(false); // 계정 존재 여부 체크 (true: 계정있음, false: 계정없음)
-  const [error, setError] = useState(null); // 로그인 또는 회원가입 에러메시지
-  const [isRegisterForm, setIsRegisterForm] = useState(false); // 회원가입 폼
-
-
-  const onChange = (event) => {
-    const {
-      target: { name, value },
-    } = event;
-
-    if (name === "emailInput") {
-      setEmail(value);
-    } else if (name === "passwordInput") {
-      setPassword(value);
-    } else if (name === "displayNameInput") {
-      setDisplayName(value);
-    }
-  };
-
-  // 이메일, 비밀번호로 계정 생성후 로그인
-  const onClickRegister = async (event) => {
-    event.preventDefault();
-
-    try {
-      if (!isAccount) {
-        //TODO 서버에 넘겨주기
-        setIsRegisterForm(!isRegisterForm);
-      }
-    } catch (error) {
-      console.log(error);
-      setError(error.message);
-    } finally {
-    }
-  };
-
-  return (
-    <>
-      <LoginFormContent>
-        <LoginFormTag onSubmit={onClickRegister}>
-          <LoginInputTag name="displayNameInput" type="text" placeholder="닉네임" onChange={onChange} value={displayName} required></LoginInputTag>
-          <LoginInputTag name="emailInput" type="text" placeholder="이메일" onChange={onChange} value={email} required></LoginInputTag>
-          <LoginInputTag name="passwordInput" type="password" placeholder="비밀번호" onChange={onChange} value={password} required></LoginInputTag>
-          <ErrorMessage>{error && error}</ErrorMessage>
-          <LoginSubmitTag type="submit" onClick={onClickRegister} value="회원가입"></LoginSubmitTag>
-        </LoginFormTag>
-      </LoginFormContent>
-    </>
-  )
-};
-
-export default Join;
