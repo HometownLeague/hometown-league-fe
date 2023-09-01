@@ -1,7 +1,72 @@
-import { useState } from "react";
+import React,{ useState } from "react";
 import ReactModal from 'react-modal';
-
+import Swal from "sweetalert2";
 import styled from "styled-components";
+import { useDispatch } from "react-redux";
+
+import { actionCreators as userAction } from "../../redux/userApi";
+
+const LoginModal = ({onSubmit, onClose }) => {
+  const dispatch = useDispatch();
+  const [id, setId] = React.useState("");//유저 아이디
+    const [password, setPassword] = useState(""); // 유저 비밀번호
+
+    //모달 열기 닫기 함수
+    const handleClickSubmit = () => {
+      onSubmit();
+    };
+
+    const handleClickCancel = () => {
+      onClose();
+    };
+    const emailCheck = (email) =>{
+      let _reg = /^[0-9a-zA-Z]([-_.0-9a-zA-Z])*@[0-9a-zA-Z]([-_.0-9a-zA-Z])*.([a-zA-Z])*/;
+  
+      return _reg.test(email); 
+  }
+    //로그인 API
+    const onClickLogin = () => {
+      if (id === "" || password === "") {
+        Swal.fire({
+          text: "정보를 입력해주세요.",
+          confirmButtonColor: "#E3344E",
+        })
+        return;
+      }
+      else if (!emailCheck(id)) {
+        Swal.fire({
+          text: "올바른 이메일 형식이 아닙니다.",
+          confirmButtonColor: "#E3344E",
+        })
+        return;
+      }else{
+        dispatch(userAction.loginDB(id, password));
+      }
+    };
+
+  return (
+    <ReactModal isOpen>
+      <LoginFormContent>
+        <LoginFormTag onSubmit={onClickLogin}>
+          <LoginInputTag name="emailInput" type="text" placeholder="이메일" onChange={e=>setId(e.target.value)} value={id} required></LoginInputTag>
+          <LoginInputTag name="passwordInput" type="password" placeholder="비밀번호" onChange={e=>setPassword(e.target.value)} value={password} required></LoginInputTag>
+          <LoginSubmitTag type="submit" onClick={onClickLogin} value="로그인"></LoginSubmitTag>
+        </LoginFormTag>
+        <div>
+          {/* 
+          // TODO - 모달 submit이랑 본문 submit이랑 구분하기
+          <button onClick={handleClickSubmit}>확인</button>
+          */}
+        
+        <button onClick={handleClickCancel}>취소</button>
+      </div>
+      </LoginFormContent>
+    </ReactModal>
+  )
+};
+
+export default LoginModal;
+
 
 const LoginFormContent = styled.div`
   display: flex;
@@ -58,59 +123,3 @@ const LoginSubmitTag = styled.input`
     background-color: var(--twitter-color);
   }
 `;
-const LoginModal = ({onSubmit, onClose }) => {
-     //const history = useHistory();
-  const [email, setEmail] = useState(""); // 유저 이메일
-  const [password, setPassword] = useState(""); // 유저 비밀번호
-  const [isRegisterForm, setIsRegisterForm] = useState(false); // 회원가입 폼
-
-  const onChange = (event) => {
-    const {
-      target: { name, value },
-    } = event;
-
-    if (name === "emailInput") {
-      setEmail(value);
-    } else if (name === "passwordInput") {
-      setPassword(value);
-    }
-  };
-
-  // 이메일, 비밀번호로 계정 생성후 로그인
-  const onClickRegister = async (event) => {
-    event.preventDefault();
-
-    try {
-        //TODO 서버에 넘겨주기
-        setIsRegisterForm(!isRegisterForm);
-      
-    } catch (error) {
-      console.log(error);
-    } finally {
-    }
-  };
-    const handleClickSubmit = () => {
-      onSubmit();
-    };
-
-    const handleClickCancel = () => {
-      onClose();
-    };
-  return (
-    <ReactModal isOpen>
-      <LoginFormContent>
-        <LoginFormTag onSubmit={onClickRegister}>
-          <LoginInputTag name="emailInput" type="text" placeholder="이메일" onChange={onChange} value={email} required></LoginInputTag>
-          <LoginInputTag name="passwordInput" type="password" placeholder="비밀번호" onChange={onChange} value={password} required></LoginInputTag>
-          <LoginSubmitTag type="submit" onClick={onClickRegister} value="로그인"></LoginSubmitTag>
-        </LoginFormTag>
-        <div>
-        <button onClick={handleClickSubmit}>확인</button>
-        <button onClick={handleClickCancel}>취소</button>
-      </div>
-      </LoginFormContent>
-    </ReactModal>
-  )
-};
-
-export default LoginModal;
