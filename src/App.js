@@ -4,7 +4,7 @@ import { ConnectedRouter } from "connected-react-router";
 import { useDispatch } from "react-redux";
 
 import { Header } from "./components"
-import { Main, Join, TeamManagement } from "./pages"
+import { Main, Join, TeamManagement, TeamProfile } from "./pages"
 
 function App() {
   return (
@@ -13,7 +13,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Main />} />
         <Route path="/join" element={<Join />} />
-        <Route path="/TeamManagement" element={<TeamManagement />} />
+        <Route path="/teamManagement" element={<TeamManagement />} />
+        <Route path="/team/:id" element={<TeamProfile />} />
+
       </Routes>
     </>
   );

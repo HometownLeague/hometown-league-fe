@@ -12,8 +12,10 @@ const LoginModal = ({onSubmit, onClose }) => {
     const [password, setPassword] = useState(""); // 유저 비밀번호
 
     //모달 열기 닫기 함수
-    const handleClickSubmit = () => {
-      onSubmit();
+    const handleClickSubmit = (e) => {
+      e.preventDefault()
+      login();
+      onClose();
     };
 
     const handleClickCancel = () => {
@@ -25,7 +27,7 @@ const LoginModal = ({onSubmit, onClose }) => {
       return _reg.test(email); 
   }
     //로그인 API
-    const onClickLogin = () => {
+    const login = () => {
       if (id === "" || password === "") {
         Swal.fire({
           text: "정보를 입력해주세요.",
@@ -47,19 +49,14 @@ const LoginModal = ({onSubmit, onClose }) => {
   return (
     <ReactModal isOpen>
       <LoginFormContent>
-        <LoginFormTag onSubmit={onClickLogin}>
+        <LoginFormTag onSubmit={handleClickSubmit}>
           <LoginInputTag name="emailInput" type="text" placeholder="이메일" onChange={e=>setId(e.target.value)} value={id} required></LoginInputTag>
           <LoginInputTag name="passwordInput" type="password" placeholder="비밀번호" onChange={e=>setPassword(e.target.value)} value={password} required></LoginInputTag>
-          <LoginSubmitTag type="submit" onClick={onClickLogin} value="로그인"></LoginSubmitTag>
+          <div>
+            <LoginSubmitTag type="submit">로그인</LoginSubmitTag>
+            <CancelBtn type="button" onClick={handleClickCancel}>취소</CancelBtn> 
+          </div>
         </LoginFormTag>
-        <div>
-          {/* 
-          // TODO - 모달 submit이랑 본문 submit이랑 구분하기
-          <button onClick={handleClickSubmit}>확인</button>
-          */}
-        
-        <button onClick={handleClickCancel}>취소</button>
-      </div>
       </LoginFormContent>
     </ReactModal>
   )
@@ -108,18 +105,31 @@ const LoginInputTag = styled.input`
   }
 `;
 
-const LoginSubmitTag = styled.input`
+const LoginSubmitTag = styled.button`
   border: none;
   outline: none;
-  background-color: #98cff8;
   padding: 12px;
-  color: white;
+  color: black;
   border-radius: 30px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
 
   &:hover {
-    background-color: var(--twitter-color);
+    background-color: #D0BFFF;
+  }
+`;
+const CancelBtn = styled.button`
+  border: none;
+  outline: none;
+  padding: 12px;
+  color: black;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #D0BFFF;
   }
 `;

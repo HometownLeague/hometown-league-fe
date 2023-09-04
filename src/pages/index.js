@@ -1,4 +1,5 @@
 import Main from './Main';
 import Join from './Join';
 import TeamManagement from './TeamManagement';
-export { Main, Join, TeamManagement }
+import TeamProfile from './TeamProfile';
+export { Main, Join, TeamManagement, TeamProfile }

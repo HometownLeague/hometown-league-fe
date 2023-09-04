@@ -1,3 +1,3 @@
 import Header from './Header';
-
-export { Header }
+import CreateTeam from './CreateTeam';
+export { Header, CreateTeam }

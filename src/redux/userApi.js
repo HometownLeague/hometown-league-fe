@@ -3,8 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 
-//TODO - url 재 설정하기
-const API_URL='218.232.175.4';
+import { API_URL } from '../lib/constants'
 
 //Action Types
 const REGISTER_SUCCESS = "REGISTER_SUCCESS";
@@ -29,18 +28,18 @@ const getUser = createAction(GET_USER, (user) => ({ user }));
 const deleteUser = createAction(DELETE_USER, (user) => ({ user }));
 
 //회원가입 API
-const registerDB = (id, password,img) => {
-  return function ({history}) {
+const registerDB = (id, password, img) => {
+  return function ({ history }) {
     axios({
       method: "post",
-      url: "API_URL/user/register",
-      data: {
+      url: `${API_URL}/user/register`,
+      data: [{
         id: id,
         password: password,
-        location:[],
-        image:img,
-        team:[],
-      },
+        location: [],
+        image: img,
+        team: [],
+      }],
     })
       .then((response) => {
         if (response.data.msg === "success") {
@@ -64,14 +63,14 @@ const registerDB = (id, password,img) => {
 
 //로그인 API
 const loginDB = (id, password) => {
-  return function (dispatch,{history}) {
+  return function (dispatch, { history }) {
     axios({
       method: "post",
-      url: "API_URL/user/login",
-      data: {
+      url: `${API_URL}/user/login`,
+      data: [{
         id: id,
         password: password,
-      },
+      }],
     })
       .then((response) => {
         if (response.data.msg === "success") {
@@ -79,18 +78,18 @@ const loginDB = (id, password) => {
             name: response.data.id.split("@")[0],
           };
           dispatch(setUser(userInfo));
-        const accessToken = response.data.token;
-        if (accessToken) {
-          localStorage.setItem("user", JSON.stringify(userInfo));
+          const accessToken = response.data.token;
+          if (accessToken) {
+            localStorage.setItem("user", JSON.stringify(userInfo));
+          }
+          history.push("/");
+        } else {
+          Swal.fire({
+            text: "아이디 혹은 비밀번호를 확인해주세요.",
+            confirmButtonColor: "#E3344E",
+          });
         }
-        history.push("/");
-      }else {
-        Swal.fire({
-          text: "아이디 혹은 비밀번호를 확인해주세요.",
-          confirmButtonColor: "#E3344E",
-        });
-      }
-    })
+      })
       .catch((error) => {
         console.log(error);
       });
@@ -109,11 +108,11 @@ const logoutDB = () => {
     history.replace("/");
   };
 };
-const getUserDB = () => {
+const getUserDB = (id) => {
   return function (dispatch, { history }) {
     axios({
       method: "get",
-      url: "API_URL/user/get",
+      url: `${API_URL}/user/${id}`,
     })
       .then((response) => {
         dispatch(
@@ -140,7 +139,7 @@ const getUserDB = () => {
 const deleteUserDB = () => {
   return function (dispatch, { history }) {
     axios
-      .delete(`/API_URL/user`)
+      .delete(`${API_URL}/user`)
       .then((response) => {
         dispatch(deleteUser());
       })
@@ -190,11 +189,11 @@ export default handleActions(
       }),
     [LOG_OUT]: (state, action) =>
       produce(state, (draft) => {
-        
+
         draft.user = null;
         draft.is_login = false;
       }),
-    [GET_USER]: (state, action) => produce(state, (draft) => {}),
+    [GET_USER]: (state, action) => produce(state, (draft) => { }),
   },
   initialState
 );
@@ -210,7 +209,7 @@ const actionCreators = {
   loginDB,
   deleteUser,
   deleteUserDB,
-  
+
 };
 
 export { actionCreators };

@@ -2,8 +2,13 @@ import React from 'react'
 
 function TeamManagement() {
   return (
-    <div>TeamManagement</div>
+    <>
+      {/* 팀 리스트 */}
+      {/* 팀 만들기 */}
+
+    </>
   )
 }
 
 export default TeamManagement
+

@@ -17,11 +17,11 @@ function Header() {
   const { openModal } = useModals();
 
   const openLoginModal = () => {
-    openModal(modals.loginModal, { });
+    openModal(modals.loginModal, { onsubmit:(value)=>{console.log(value)}});
   };
 
   useEffect(()=>{
-
+    console.log(localStorage.getItem("user"))
   })
   return (
     <>
@@ -31,7 +31,7 @@ function Header() {
           <StyledLink to="/"><FontAwesomeIcon icon={faFutbol}/></StyledLink>
         </LogoArea>
         <StyledLi>
-        <StyledLink to="/">팀 관리</StyledLink>
+        <StyledLink to="/teamManagement">팀 관리</StyledLink>
         </StyledLi>
         <StyledLi>
           <StyledLink to="/matching">매칭</StyledLink>
@@ -57,7 +57,7 @@ function Header() {
       </UserContainer>
       ) : (
         <StyledLi>
-            <button onClick={openLoginModal}>로그인</button>
+            <LoginArea onClick={openLoginModal}>로그인</LoginArea>
             <StyledLink to="/join">회원가입</StyledLink>
           </StyledLi>
           
@@ -119,7 +119,7 @@ const ProfileImg = styled.img`
     }
 `;
 
-const LoginArea = styled.span`
+const LoginArea = styled.button`
     font-size: 16px;
     font-weight: normal;
     cursor: pointer;
