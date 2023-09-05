@@ -1,135 +1,110 @@
-import React,{ useState } from "react";
+import React,{ useState,useCallback } from "react";
 import ReactModal from 'react-modal';
-import Swal from "sweetalert2";
 import styled from "styled-components";
+import { LockOutlined, UserOutlined} from '@ant-design/icons';
+import { Button, Checkbox, Form, Input } from 'antd';
 import { useDispatch } from "react-redux";
+import { Link } from 'react-router-dom';
 
 import { actionCreators as userAction } from "../../redux/userApi";
+import useInput from '../useInput';
 
+const customStyles = {
+  content: {
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+  },
+};
 const LoginModal = ({onSubmit, onClose }) => {
   const dispatch = useDispatch();
-  const [id, setId] = React.useState("");//유저 아이디
-    const [password, setPassword] = useState(""); // 유저 비밀번호
-
-    //모달 열기 닫기 함수
-    const handleClickSubmit = (e) => {
-      e.preventDefault()
-      login();
-      onClose();
-    };
+  const [id, onChangeId] = useInput('');
+  const [password, onChangePassword] = useInput('');
 
     const handleClickCancel = () => {
       onClose();
     };
+
     const emailCheck = (email) =>{
       let _reg = /^[0-9a-zA-Z]([-_.0-9a-zA-Z])*@[0-9a-zA-Z]([-_.0-9a-zA-Z])*.([a-zA-Z])*/;
   
       return _reg.test(email); 
   }
     //로그인 API
-    const login = () => {
-      if (id === "" || password === "") {
-        Swal.fire({
-          text: "정보를 입력해주세요.",
-          confirmButtonColor: "#E3344E",
-        })
-        return;
-      }
-      else if (!emailCheck(id)) {
-        Swal.fire({
-          text: "올바른 이메일 형식이 아닙니다.",
-          confirmButtonColor: "#E3344E",
-        })
-        return;
-      }else{
-        dispatch(userAction.loginDB(id, password));
-      }
-    };
-
+    const handleClickSubmit = useCallback(({id,password})=>{
+      dispatch(userAction.loginDB(id, password));
+      onClose();
+    },[]);
+    
   return (
-    <ReactModal isOpen>
-      <LoginFormContent>
-        <LoginFormTag onSubmit={handleClickSubmit}>
-          <LoginInputTag name="emailInput" type="text" placeholder="이메일" onChange={e=>setId(e.target.value)} value={id} required></LoginInputTag>
-          <LoginInputTag name="passwordInput" type="password" placeholder="비밀번호" onChange={e=>setPassword(e.target.value)} value={password} required></LoginInputTag>
-          <div>
-            <LoginSubmitTag type="submit">로그인</LoginSubmitTag>
-            <CancelBtn type="button" onClick={handleClickCancel}>취소</CancelBtn> 
-          </div>
-        </LoginFormTag>
-      </LoginFormContent>
+    <ReactModal isOpen style={customStyles} >
+      <h4>Login</h4>
+      <Form
+      name="normal_login"
+      className="login-form"
+      initialValues={{
+        remember: true,
+      }}
+      onFinish={handleClickSubmit}
+    >
+      <Form.Item
+        name="id"
+        rules={[
+          {
+            type: 'email',
+            message: '아이디는 E-mail 형식이어야 합니다!',
+          },
+          {
+            required: true,
+            message: '아이디를 적어주세요',
+          },
+        ]}
+      >
+        <Input  prefix={<UserOutlined className="site-form-item-icon" />} placeholder="email" value={id} onChange={onChangeId}/>
+      </Form.Item>
+      <Form.Item
+        name="password"
+        rules={[
+          {
+            required: true,
+            message: '비밀번호를 적어주세요',
+          },
+        ]}
+      >
+        <Input
+          prefix={<LockOutlined className="site-form-item-icon" />}
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={onChangePassword}
+        />
+      </Form.Item>
+      <Form.Item>
+        <Form.Item name="remember" valuePropName="checked" noStyle>
+          <Checkbox>Remember me</Checkbox>
+        </Form.Item>
+
+        {/* <a className="login-form-forgot" href="">
+          Forgot password
+        </a> */}
+      </Form.Item>
+
+      <Form.Item>
+        <Button type="primary" htmlType="submit"  >
+          Log in
+        </Button><span>  </span>
+        <Button type="primary" onClick={handleClickCancel}danger >
+          Cancel
+        </Button>
+        <div> Or  <Link to="/join">register now!</Link></div>
+      </Form.Item>
+    </Form>
     </ReactModal>
   )
 };
 
 export default LoginModal;
 
-
-const LoginFormContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 15px;
-  padding-top: 45px;
-`;
-
-
-const LoginFormTag = styled.form`
-  display: flex;
-  flex-direction: column;
-  width: 80%;
-`;
-
-const LoginInputTag = styled.input`
-  border: none;
-  outline: none;
-  padding: 15px;
-  padding-bottom: 15px;
-  padding-top: 27px;
-  background-color: #f5f5f5;
-  margin-top: 10px;
-  font-size: 16px;
-  border-radius: 5px;
-  position: relative;
-
-  &:focus {
-    background-color: #e8e8e8;
-  }
-
-  &::placeholder {
-    font-size: 14px;
-    position: absolute;
-    top: 10px;
-    left: 15px;
-  }
-`;
-
-const LoginSubmitTag = styled.button`
-  border: none;
-  outline: none;
-  padding: 12px;
-  color: black;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #D0BFFF;
-  }
-`;
-const CancelBtn = styled.button`
-  border: none;
-  outline: none;
-  padding: 12px;
-  color: black;
-  border-radius: 30px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #D0BFFF;
-  }
-`;

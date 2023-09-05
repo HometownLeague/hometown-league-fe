@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { ModalsStateContext, ModalsDispatchContext } from './ModalsContext';
 import LoginModal from './LoginModal';
+import CreateTeamModal from './CreateTeamModal';
 
 export const modals = {
   loginModal: LoginModal,
+  createTeamModal: CreateTeamModal
 };
 const Modals = () => {
   const openedModals = useContext(ModalsStateContext);

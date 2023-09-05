@@ -3,7 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 
-import { API_URL } from '../lib/constants'
+//import { API_URL } from '../lib/constants'
 
 //Action Types
 const REGISTER_SUCCESS = "REGISTER_SUCCESS";
@@ -32,7 +32,7 @@ const registerDB = (id, password, img) => {
   return function ({ history }) {
     axios({
       method: "post",
-      url: `${API_URL}/user/register`,
+      url: `/api/user/register`,
       data: [{
         id: id,
         password: password,
@@ -66,7 +66,7 @@ const loginDB = (id, password) => {
   return function (dispatch, { history }) {
     axios({
       method: "post",
-      url: `${API_URL}/user/login`,
+      url: `/api/user/login`,
       data: [{
         id: id,
         password: password,
@@ -112,7 +112,7 @@ const getUserDB = (id) => {
   return function (dispatch, { history }) {
     axios({
       method: "get",
-      url: `${API_URL}/user/${id}`,
+      url: `/api/user/${id}`,
     })
       .then((response) => {
         dispatch(
@@ -139,7 +139,7 @@ const getUserDB = (id) => {
 const deleteUserDB = () => {
   return function (dispatch, { history }) {
     axios
-      .delete(`${API_URL}/user`)
+      .delete(`/api/user`)
       .then((response) => {
         dispatch(deleteUser());
       })
