@@ -9,10 +9,12 @@ import { faPersonRunning, faPeopleGroup, faPlus } from '@fortawesome/free-solid-
 import { actionCreators as teamActions } from "../redux/teamApi";
 import { modals } from '../components/modal/Modals';
 import useModals from '../components/modal/useModal';
+import CreateTeamModal from '../components/modal/CreateTeamModal';
 
 function TeamManagement() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
+  const [isEditingNewTeam, setIsEditingNewTeam] = useState(false);
   //TODO - team api 연결하기
   //const team_list = useSelector((state) => state.user.team_list);
   const team_list = {
@@ -27,20 +29,19 @@ function TeamManagement() {
       "rank": "unrank",
     }], unjoined: []
   }
-
-  const { openModal } = useModals();
-
-  const openCreateTeamModal = () => {
-    openModal(modals.createTeamModal, { onsubmit: (value) => { console.log(value) } });
-  };
-
   const alert = () => {
     Swal.fire({
       html: `원활한 매칭을 위해<br/>팀은 2개만 만들 수 있어요 😸`,
       confirmButtonColor: "rgb(118, 118, 118)",
     });
   };
+  const startEditingHandler = () => {
+    setIsEditingNewTeam(true);
+  };
 
+  const stopEditingHandler = () => {
+    setIsEditingNewTeam(false);
+  };
   useEffect(() => {
     dispatch(teamActions.getTeamDB());
   }, []);
@@ -53,7 +54,7 @@ function TeamManagement() {
           {team_list.joined.map((team, idx) => {
             return (
               <GroupBox key={team.id} onClick={() => {
-                history.push(`/team/detail/${team.id}`);
+                history.push(`/team/profile/${team.id}`);
               }}>
                 {team.logo ? <>
                   <Image src={team.logo}
@@ -73,32 +74,39 @@ function TeamManagement() {
             );
           })}
         </ListBox>
-        <Grid $margin="0 10px 0 32px" width="85%" height="120px">
-          <Grid>
-            <Text $title $bold>
-              원하는 팀을{" "}
-            </Text>
-            <Text $title $bold>
-              못 찾으셨나요?{" "}
-            </Text>
-            <Text $title $bold>
-              <Point>나만의 팀</Point>을 만드세요!{" "}
-            </Text>
+        {team_list.joined.length == 0 && (
+          <Grid $margin="0 10px 0 32px" width="85%" height="120px">
+            <Grid>
+              <Text $title $bold>
+                원하는 팀을{" "}
+              </Text>
+              <Text $title $bold>
+                못 찾으셨나요?{" "}
+              </Text>
+              <Text $title $bold>
+                <Point>나만의 팀</Point>을 만드세요!{" "}
+              </Text>
+            </Grid>
           </Grid>
-        </Grid>
+        )}
         <IconBox>
-          {team_list.joined.length >= 2 ? (
-            <IconBox onClick={alert}>
-              <FontAwesomeIcon icon={faPeopleGroup} style={{ color: "#e3344e", fontSize: 45 }} />
-              <FontAwesomeIcon icon={faPlus} />
-            </IconBox>
-          ) : (
-            <IconBox onClick={openCreateTeamModal}>
-              <FontAwesomeIcon icon={faPeopleGroup} style={{ color: "#e3344e", fontSize: 45 }} />
-              <FontAwesomeIcon icon={faPlus} />
-            </IconBox>
+          {!isEditingNewTeam && (
+            <>
+              {team_list.joined.length >= 2 ? (
+                <IconBox onClick={alert}>
+                  <FontAwesomeIcon icon={faPeopleGroup} style={{ color: "#e3344e", fontSize: 45 }} />
+                  <FontAwesomeIcon icon={faPlus} />
+                </IconBox>
+              ) : (
+                <IconBox onClick={startEditingHandler}>
+                  <FontAwesomeIcon icon={faPeopleGroup} style={{ color: "#e3344e", fontSize: 45 }} />
+                  <FontAwesomeIcon icon={faPlus} />
+                </IconBox>
+              )}
+            </>
           )}
         </IconBox>
+        {isEditingNewTeam && (<CreateTeamModal stopEditing={stopEditingHandler} />)}
       </ContentBox>
     </>
   );

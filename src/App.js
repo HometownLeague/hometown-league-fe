@@ -14,7 +14,7 @@ function App() {
         <Route path="/" element={<Main />} />
         <Route path="/join" element={<Join />} />
         <Route path="/teamManagement" element={<TeamManagement />} />
-        <Route path="/team/datil/:id" element={<TeamProfile />} />
+        <Route path="/team/profile/:id" element={<TeamProfile />} />
 
       </Routes>
     </>

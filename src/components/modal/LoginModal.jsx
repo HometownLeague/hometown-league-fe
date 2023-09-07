@@ -40,7 +40,8 @@ const LoginModal = ({onSubmit, onClose }) => {
     },[]);
     
   return (
-    <ReactModal isOpen style={customStyles} >
+    <ReactModal isOpen style={customStyles} onRequestClose={handleClickCancel}
+    shouldCloseOnOverlayClick={true}>
       <h4>Login</h4>
       <Form
       name="normal_login"

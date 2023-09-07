@@ -27,9 +27,11 @@ function Header() {
     <>
     <Container>
       <StyledUl>
-        <LogoArea>
-          <StyledLink to="/"><FontAwesomeIcon icon={faFutbol}/></StyledLink>
+        <StyledLi>
+          <LogoArea>
+          <StyledLink to="/"><FontAwesomeIcon icon={faFutbol} size='2x'/></StyledLink>
         </LogoArea>
+        </StyledLi>
         <StyledLi>
         <StyledLink to="/teamManagement">팀 관리</StyledLink>
         </StyledLi>
@@ -78,7 +80,7 @@ const Container= styled.div`
 `;
 
 const LogoArea = styled.div`
-    width: 180px;
+    width: 40px;
     cursor: pointer;
     height: 100%;
     @media only screen and (max-width: 1024px) {
@@ -102,6 +104,7 @@ const StyledLink = styled(Link)`
   text-decoration: none;
   cursor: pointer;
   font-size: 20px;
+  color:black;
 `;
 
 const StyledUl = styled.ul`

@@ -19,7 +19,7 @@ import {
 import useInput from '../useInput';
 import { actionCreators as teamAction } from "../../redux/teamApi";
 
-function CreateTeamModal({onSubmit, onClose }) {
+function CreateTeamModal(props) {
 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
@@ -59,21 +59,15 @@ function CreateTeamModal({onSubmit, onClose }) {
     dispatch(teamAction.createTeamDB(data));
     window.location.reload();
   })
-  const handleClickCancel = () => {
-    onClose();
-  };
+
   const addTime=(time, timeString) => {
     console.log(time, timeString);
   };
 
   return (
 
-  <ReactModal isOpen>
-    <header >
-      <text>팀 만들기</text>
-      <CloseOutlined onClick={handleClickCancel}/>
-    </header>
-    
+  <>
+    <StyledCloseOutlined onClick={props.stopEditing}/>
     <Form
   labelCol={{
     span: 4,
@@ -166,8 +160,34 @@ function CreateTeamModal({onSubmit, onClose }) {
     </Button>
     </Form.Item>
   </Form>
-  </ReactModal>
+  </>
   );
 }
 
 export default CreateTeamModal;
+
+const StyledCloseOutlined=styled(CloseOutlined)`
+  overflow: hidden;
+	position: relative;
+	border: none;
+	padding: 0;
+  right:40px;
+  font-size:2em;
+	width: 2em; height: 2em;
+	border-radius: 50%;
+	background: transparent;
+	color: #1da1f2;
+// 	font: inherit;
+// 	text-indent: 100%;
+	cursor: pointer;
+	
+	&:focus {
+		outline: solid 0 transparent;
+		box-shadow: 0 0 0 2px #8ed0f9
+	}
+	
+	&:hover {
+		background: rgba(29, 161, 142, .1)
+	}
+	
+`
