@@ -44,10 +44,10 @@ const getTeamDB = () => {
     dispatch(loading(true));
     axios
       .get(`/team`)
-      .then((res) => {
-        switch (res.data.msg) {
+      .then((response) => {
+        switch (response.data.responseCode === "0000") {
           case "success":
-            dispatch(getTeam(res.data));
+            dispatch(getTeam(response.data));
             break;
           case "not_login":
             history.push("/");
@@ -71,11 +71,12 @@ const createTeamDB = (teamInfo) => {
   return function (dispatch, { history }) {
     axios
       .post(`/team`, teamInfo)
-      .then((res) => {
-        switch (res.data.msg) {
-          case "success":
+      .then((response) => {
+        switch (response.data.responseCode.code) {
+          case "0000":
             dispatch(createTeam(teamInfo));
             break;
+          //FIXME - case 만료 설정
           case "not_login":
             Swal.fire({
               text: "로그인 만료되었습니다.",
@@ -85,7 +86,7 @@ const createTeamDB = (teamInfo) => {
             break;
           default:
             Swal.fire({
-              text: "클럽 생성에 실패했습니다. ",
+              text: "팀 생성에 실패했습니다. ",
               confirmButtonColor: "#E3344E",
             });
             break;
@@ -109,16 +110,31 @@ const deleteTeamDB = (team) => {
       if (result.isConfirmed) {
         axios
           .delete(`/team/${team.teamId}`)
-          .then((res) => {
-            switch (res.data.message) {
-              case "success":
+          .then((response) => {
+            switch (response.data.responseCode.code) {
+              case "0000":
                 Swal.fire("삭제 완료!", "팀이 삭제되었습니다.", "success");
                 dispatch(deleteTeam(team));
                 window.location.href = '/team';
                 break;
-              case "not_login":
+              //FIXME - case 만료 설정
+              case "2":
                 Swal.fire({
                   text: "로그인 만료되었습니다.",
+                  confirmButtonColor: "rgb(118, 118, 118)",
+                });
+                history.push("/");
+                break;
+              case "2003":
+                Swal.fire({
+                  text: "존재하지 않는 팀 ID 입니다.",
+                  confirmButtonColor: "rgb(118, 118, 118)",
+                });
+                history.push("/");
+                break;
+              case "2004":
+                Swal.fire({
+                  text: "팀의 주장만 삭제 할 수 있습니다.",
                   confirmButtonColor: "rgb(118, 118, 118)",
                 });
                 history.push("/");
