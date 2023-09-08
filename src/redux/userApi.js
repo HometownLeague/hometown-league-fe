@@ -33,16 +33,16 @@ const registerDB = (id, password, img) => {
     axios({
       method: "post",
       url: `/user/register`,
-      data: [{
+      data: {
         id: id,
         password: password,
         location: [],
         image: img,
         team: [],
-      }],
+      },
     })
       .then((response) => {
-        if (response.data.msg === "success") {
+        if (response.data.responseCode.code === "0000") {
           Swal.fire({
             text: "가입이 완료되었습니다!",
             confirmButtonColor: "#E3344E",
@@ -67,20 +67,23 @@ const loginDB = (id, password) => {
     axios({
       method: "post",
       url: `/user/login`,
-      data: [{
+      data: {
         id: id,
         password: password,
-      }],
+      },
     })
       .then((response) => {
-        if (response.data.msg === "success") {
+        console.log(response)
+        if (response.data.responseCode.code === "0000") {
+
           const userInfo = {
-            name: response.data.id.split("@")[0],
+            name: id.split("@")[0],
+            id: id
           };
           dispatch(setUser(userInfo));
           const accessToken = response.data.token;
           if (accessToken) {
-            localStorage.setItem("user", JSON.stringify(userInfo));
+            localStorage.setItem("user", userInfo);
           }
           history.push("/");
         } else {

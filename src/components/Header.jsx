@@ -10,7 +10,9 @@ import { faUser,faFutbol} from "@fortawesome/free-solid-svg-icons";
 import useModals from './modal/useModal';
 import {modals} from './modal/Modals';
 
+import { actionCreators as userAction } from '../redux/userApi';
 function Header() {
+  const dispatch=useDispatch();
 
   const user = useSelector((state) => state.user.user);
   //const isLoading = useSelector((state) => state.user.userLoading);
@@ -22,7 +24,7 @@ function Header() {
 
   useEffect(()=>{
     console.log(localStorage.getItem("user"))
-  })
+  },[user])
   return (
     <>
     <Container>
@@ -53,11 +55,16 @@ function Header() {
           {user.photoURL ? (
             <UserImg src={user.photoURL} />
           ) : (
-            <faUser/>
+          <>
+            <FontAwesomeIcon icon={faUser} />
+            <LoginArea onClick={()=>{dispatch(userAction.logoutDB())}}>로그아웃</LoginArea>
+          </>
+
           )}
         </UserInfo>
       </UserContainer>
       ) : (
+
         <StyledLi>
             <LoginArea onClick={openLoginModal}>로그인</LoginArea>
             <StyledLink to="/join">회원가입</StyledLink>

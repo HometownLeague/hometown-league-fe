@@ -50,7 +50,6 @@ const Join = () => {
       nickname: nickname,
       password: password,
       description: desc,
-
     }
     dispatch(userAction.registerDB(data));
 
@@ -84,7 +83,7 @@ const Join = () => {
     }
     return Promise.resolve();
   }, []);
-
+  //FIXME - 중복 검사 안됌. 고치기
   // nickname 중복 검사
   const onCheckNickname = useCallback(() => {
     if (form.getFieldError('nickname').length === 0 && form.getFieldValue('nickname')) {
@@ -93,6 +92,7 @@ const Join = () => {
         url: `/user/is-duplicate?type=nickname&value=${form.getFieldValue('nickname')}`,
       })
         .then((response) => {
+          console.log(response)
           if (response.data === "N") {
             form.setFields([{
               name: 'nickname',
@@ -131,6 +131,7 @@ const Join = () => {
 
       })
         .then((response) => {
+          console.log(response)
           if (response.data === "N") {
             form.setFields([{
               name: 'email',

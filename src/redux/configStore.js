@@ -4,13 +4,13 @@ import { createBrowserHistory } from "history";
 import { connectRouter } from "connected-react-router";
 
 import User from "./userApi";
-//import Post from "./postApi";
+import Team from "./teamApi";
 
 export const history = createBrowserHistory();
 
 const rootReducer = combineReducers({
   user: User,
-
+  team: Team,
   router: connectRouter(history),
 });
 

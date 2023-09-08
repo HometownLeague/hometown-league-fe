@@ -1,6 +1,7 @@
 import React,{useCallback,useState} from "react";
-import ReactModal from 'react-modal';
 import Swal from "sweetalert2";
+import axios from "axios";
+
 import styled from "styled-components";
 import { useDispatch,useSelector } from "react-redux";
 import { CloseOutlined ,UploadOutlined,MinusCircleOutlined,PlusOutlined} from '@ant-design/icons';
@@ -31,7 +32,7 @@ function CreateTeamModal(props) {
   const [timeList,onChangeTimeList]=useInput([])
   const [desc, onChangeDesc] = useInput("");
   const [teamLogo,onChangeTeamLogo]=useState("");
-
+  const [form] = Form.useForm();
   const { TextArea } = Input;
   //파일 개수 제한
   const normFile = (e) => {
@@ -44,7 +45,35 @@ function CreateTeamModal(props) {
     }
     return e && fileList;
   };
-
+  // nickname 중복 검사
+  const onCheckTeamname = useCallback(() => {
+    if (form.getFieldError('teamname').length === 0 && form.getFieldValue('teamname')) {
+      axios({
+        method: "get",
+        url: `/team/is-duplicate/${form.getFieldValue('teamname')}`,
+      })
+        .then((response) => {
+          if (response.data === "N") {
+            form.setFields([{
+              name: 'teamname',
+              message: ['사용 가능한 닉네임입니다.']
+            }]);
+          } else if(response.data === "Y"){
+            form.setFields([{
+              name: 'teamname',
+              errors: ['사용중인 팀 이름입니다.'],
+            }]);
+          }else{
+            Swal.fire({
+              text: "처리 중 에러가 발생했습니다. 다시 시도해주세요.",
+              confirmButtonColor: "#E3344E",
+            });
+          }
+        }).catch((e) => {
+          console.error(e);
+        });
+    }
+  }, []);
   //모달 열기 닫기 함수
   const handleClickSubmit = useCallback(({teamname,location,timeList,desc,teamLogo})=>{
     const data={
@@ -111,7 +140,7 @@ function CreateTeamModal(props) {
       />
     </Form.Item>
     {/* //FIXME - 시간 하나 이상 설정*/}
-    <Form.Item label="활동 시간대" name="timeList"  rules={[{ required: true, message: '시간대는 1개 이상 있어야 합니다.' }]}>
+    <Form.Item label="활동 시간대" name="timeList" >
     <Form.List name='time'>
         {(fields, { add, remove }) => (
           <>

@@ -16,7 +16,7 @@ function TeamManagement() {
   const user = useSelector((state) => state.user.user);
   const [isEditingNewTeam, setIsEditingNewTeam] = useState(false);
   //TODO - team api 연결하기
-  //const team_list = useSelector((state) => state.user.team_list);
+  // const team_list = useSelector((state) => state.user.team_list);
   const team_list = {
     joined: [{
       "id": 1,
