@@ -43,7 +43,7 @@ const getTeamDB = () => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
     axios
-      .get(`/api/team`)
+      .get(`/team`)
       .then((res) => {
         switch (res.data.msg) {
           case "success":
@@ -70,7 +70,7 @@ const getTeamDB = () => {
 const createTeamDB = (teamInfo) => {
   return function (dispatch, { history }) {
     axios
-      .post(`/api/team`, teamInfo)
+      .post(`/team`, teamInfo)
       .then((res) => {
         switch (res.data.msg) {
           case "success":
@@ -108,7 +108,7 @@ const deleteTeamDB = (team) => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`/api/team/${team.teamId}`)
+          .delete(`/team/${team.teamId}`)
           .then((res) => {
             switch (res.data.message) {
               case "success":
@@ -140,7 +140,7 @@ const deleteTeamDB = (team) => {
 const addMemberDB = (team) => {
   return function (dispatch, { history }) {
     axios
-      .post(`/api/team/${team.teamId}`)
+      .post(`/team/${team.teamId}`)
       .then((res) => {
         switch (res.data.message) {
           case "success":

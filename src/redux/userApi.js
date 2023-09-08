@@ -32,7 +32,7 @@ const registerDB = (id, password, img) => {
   return function ({ history }) {
     axios({
       method: "post",
-      url: `/api/user/register`,
+      url: `/user/register`,
       data: [{
         id: id,
         password: password,
@@ -66,7 +66,7 @@ const loginDB = (id, password) => {
   return function (dispatch, { history }) {
     axios({
       method: "post",
-      url: `/api/user/login`,
+      url: `/user/login`,
       data: [{
         id: id,
         password: password,
@@ -112,7 +112,7 @@ const getUserDB = (id) => {
   return function (dispatch, { history }) {
     axios({
       method: "get",
-      url: `/api/user/${id}`,
+      url: `/user/${id}`,
     })
       .then((response) => {
         dispatch(
@@ -139,7 +139,7 @@ const getUserDB = (id) => {
 const deleteUserDB = () => {
   return function (dispatch, { history }) {
     axios
-      .delete(`/api/user`)
+      .delete(`/user`)
       .then((response) => {
         dispatch(deleteUser());
       })
