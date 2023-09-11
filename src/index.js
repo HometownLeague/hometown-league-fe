@@ -1,13 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { ConnectedRouter } from 'connected-react-router';
 import { history } from './redux/configStore';
+import { HistoryRouter as Router } from "redux-first-history/rr6";
 
 //import axios from "axios";
 import { Provider } from "react-redux";
-import store from "./redux/configStore";
+import { store } from "./redux/configStore";
 import ReactModal from 'react-modal';
 import ModalsProvider from './components/modal/ModalsProvider';
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -21,7 +20,7 @@ ReactModal.setAppElement('#root');
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
-    <Router location={history.location} navigator={history}>
+    <Router history={history}>
       <ModalsProvider>
         <App />
       </ModalsProvider>

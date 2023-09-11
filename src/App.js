@@ -1,12 +1,10 @@
-import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React from "react";
 
 import { Header } from "./components"
 import { Main, Join, TeamManagement, TeamProfile } from "./pages"
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 
 function App() {
-  const location = useLocation();
 
   return (
     <>

@@ -2,6 +2,7 @@ import { createAction, handleAction, handleActions } from "redux-actions";
 import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
+import { push, replace } from "redux-first-history";
 
 //import { API_URL } from '../lib/constants'
 
@@ -29,7 +30,7 @@ const deleteUser = createAction(DELETE_USER, (user) => ({ user }));
 
 //회원가입 API
 const registerDB = (id, password, img) => {
-  return function ({ history }) {
+  return function (dispatch, { history }) {
     axios({
       method: "post",
       url: `/user/register`,
@@ -48,7 +49,7 @@ const registerDB = (id, password, img) => {
             confirmButtonColor: "#E3344E",
           }).then((responseult) => {
             if (responseult.isConfirmed) {
-              history.push("/");
+              dispatch(push("/"))
             }
           });
         } else {
@@ -73,19 +74,14 @@ const loginDB = (id, password) => {
       },
     })
       .then((response) => {
-        console.log(response)
         if (response.data.responseCode.code === "0000") {
-
           const userInfo = {
-            name: id.split("@")[0],
             id: id
           };
           dispatch(setUser(userInfo));
-          const accessToken = response.data.token;
-          if (accessToken) {
-            localStorage.setItem("user", userInfo);
-          }
-          history.push("/");
+          //TODO - 로그인 세션 관리
+          localStorage.setItem("user", userInfo);
+          dispatch(push("/"))
         } else {
           Swal.fire({
             text: "아이디 혹은 비밀번호를 확인해주세요.",
@@ -108,7 +104,7 @@ const logoutDB = () => {
       confirmButtonColor: '#7F58EC',
       confirmButtonText: '확인',
     });
-    history.replace("/");
+    dispatch(replace("/"));
   };
 };
 const getUserDB = (id) => {
@@ -149,7 +145,7 @@ const deleteUserDB = () => {
       .catch((error) => {
         console.log(error.responseponse);
         dispatch.logOut();
-        history.replace('/');
+        dispatch(replace("/"));
       });
   };
 };
