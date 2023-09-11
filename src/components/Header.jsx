@@ -10,28 +10,32 @@ import { faUser,faFutbol} from "@fortawesome/free-solid-svg-icons";
 import useModals from './modal/useModal';
 import {modals} from './modal/Modals';
 
+import { actionCreators as userAction } from '../redux/userApi';
 function Header() {
+  const dispatch=useDispatch();
 
   const user = useSelector((state) => state.user.user);
   //const isLoading = useSelector((state) => state.user.userLoading);
   const { openModal } = useModals();
 
   const openLoginModal = () => {
-    openModal(modals.loginModal, { });
+    openModal(modals.loginModal, { onsubmit:(value)=>{console.log(value)}});
   };
 
   useEffect(()=>{
-
-  })
+    console.log(localStorage.getItem("user"))
+  },[user])
   return (
     <>
     <Container>
       <StyledUl>
-        <LogoArea>
-          <StyledLink to="/"><FontAwesomeIcon icon={faFutbol}/></StyledLink>
-        </LogoArea>
         <StyledLi>
-        <StyledLink to="/">팀 관리</StyledLink>
+          <LogoArea>
+          <StyledLink to="/"><FontAwesomeIcon icon={faFutbol} size='2x'/></StyledLink>
+        </LogoArea>
+        </StyledLi>
+        <StyledLi>
+        <StyledLink to="/teamManagement">팀 관리</StyledLink>
         </StyledLi>
         <StyledLi>
           <StyledLink to="/matching">매칭</StyledLink>
@@ -51,13 +55,18 @@ function Header() {
           {user.photoURL ? (
             <UserImg src={user.photoURL} />
           ) : (
-            <faUser/>
+          <>
+            <FontAwesomeIcon icon={faUser} />
+            <LoginArea onClick={()=>{dispatch(userAction.logoutDB())}}>로그아웃</LoginArea>
+          </>
+
           )}
         </UserInfo>
       </UserContainer>
       ) : (
+
         <StyledLi>
-            <button onClick={openLoginModal}>로그인</button>
+            <LoginArea onClick={openLoginModal}>로그인</LoginArea>
             <StyledLink to="/join">회원가입</StyledLink>
           </StyledLi>
           
@@ -78,7 +87,7 @@ const Container= styled.div`
 `;
 
 const LogoArea = styled.div`
-    width: 180px;
+    width: 40px;
     cursor: pointer;
     height: 100%;
     @media only screen and (max-width: 1024px) {
@@ -102,6 +111,7 @@ const StyledLink = styled(Link)`
   text-decoration: none;
   cursor: pointer;
   font-size: 20px;
+  color:black;
 `;
 
 const StyledUl = styled.ul`
@@ -119,7 +129,7 @@ const ProfileImg = styled.img`
     }
 `;
 
-const LoginArea = styled.span`
+const LoginArea = styled.button`
     font-size: 16px;
     font-weight: normal;
     cursor: pointer;
