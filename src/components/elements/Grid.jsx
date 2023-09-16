@@ -54,15 +54,15 @@ const Grid = (props) => {
   );
 };
 
-Grid.defaultProps = {
-  chidren: null,
-  is_flex: false,
-  width: "100%",
-  padding: false,
-  margin: false,
-  bg: false,
-  _onClick: () => {},
-};
+// Grid.defaultProps = {
+//   chidren: null,
+//   is_flex: false,
+//   width: "100%",
+//   padding: false,
+//   margin: false,
+//   bg: false,
+//   _onClick: () => {},
+// };
 
 const GridBox = styled.div`
   width: ${(props) => props.width};

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import { useCookies } from "react-cookie";
 import { useSelector, useDispatch } from "react-redux";
-
+import { Text } from './elements';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser,faFutbol} from "@fortawesome/free-solid-svg-icons";
 
@@ -13,9 +13,9 @@ import {modals} from './modal/Modals';
 import { actionCreators as userAction } from '../redux/userApi';
 function Header() {
   const dispatch=useDispatch();
-
   const user = useSelector((state) => state.user.user);
   //const isLoading = useSelector((state) => state.user.userLoading);
+  const loginToken=localStorage.getItem('loginToken');
   const { openModal } = useModals();
 
   const openLoginModal = () => {
@@ -49,18 +49,23 @@ function Header() {
         <StyledLi>
           <StyledLink to="/">랭킹</StyledLink>
         </StyledLi>
-        {user? (  
+        {loginToken&&user? (  
         <UserContainer>
         <UserInfo>
-          {user.photoURL ? (
-            <UserImg src={user.photoURL} />
-          ) : (
+          {/* //TODO - user image 연결 */}
+          {/* {user.image ? (
           <>
-            <FontAwesomeIcon icon={faUser} />
+            <UserImg src={user.photoURL} />
+            <LoginArea onClick={()=>{dispatch(userAction.logoutDB())}}>로그아웃</LoginArea>
+            
+          </>
+          
+          ) : ( */}
+          <>
+            {/* <FontAwesomeIcon icon={faUser} /><Text>{user.nickname}</Text> */}
             <LoginArea onClick={()=>{dispatch(userAction.logoutDB())}}>로그아웃</LoginArea>
           </>
-
-          )}
+          {/* )} */}
         </UserInfo>
       </UserContainer>
       ) : (

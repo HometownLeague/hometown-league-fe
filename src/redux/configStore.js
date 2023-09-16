@@ -5,6 +5,8 @@ import Team from "./teamApi";
 import { configureStore } from "@reduxjs/toolkit";
 import { createReduxHistoryContext } from "redux-first-history";
 import { createBrowserHistory } from "history";
+import storage from 'redux-persist/lib/storage';
+import { persistReducer } from "redux-persist";
 
 const {
   createReduxHistory,
@@ -13,7 +15,6 @@ const {
 } = createReduxHistoryContext({ history: createBrowserHistory() });
 
 const env = process.env.NODE_ENV;
-
 //devTools 설정
 const composeEnhancers =
   typeof window === "object" && window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__
@@ -32,12 +33,20 @@ if (env === "development") {
   enhancer = composeEnhancers(applyMiddleware([routerMiddleware, logger]));
 }
 
+const reducers = combineReducers({
+  user: User,
+  team: Team,
+  router: routerReducer
+});
+
+const persistConfig = {
+  key: "root",
+  storage,
+};
+const persistedReducer = persistReducer(persistConfig, reducers);
+
 export const store = configureStore({
-  reducer: combineReducers({
-    user: User,
-    team: Team,
-    router: routerReducer
-  }),
+  reducer: persistedReducer,
   enhancer: enhancer,
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(routerMiddleware),
 });

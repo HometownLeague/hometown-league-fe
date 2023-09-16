@@ -1,11 +1,23 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Route, Routes } from 'react-router-dom';
 
 import { Header } from "./components"
 import { Main, Join, TeamManagement, TeamProfile } from "./pages"
-import { Route, Routes } from 'react-router-dom';
+import { actionCreators as userActions } from "./redux/userApi"
+import { replace } from 'redux-first-history';
 
 function App() {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user.user);
+  const loginToken = '';
 
+  useEffect(() => {
+    if (!user && window.location.pathname !== "/join"
+    ) {
+      dispatch(replace("/"))
+    }
+  }, [])
   return (
     <>
       <Header />

@@ -10,25 +10,22 @@ import { actionCreators as teamActions } from "../redux/teamApi";
 import { modals } from '../components/modal/Modals';
 import useModals from '../components/modal/useModal';
 import CreateTeamModal from '../components/modal/CreateTeamModal';
+import { Link } from 'react-router-dom';
+import TeamForm from '../components/forms/TeamForm';
 
 function TeamManagement() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const [isEditingNewTeam, setIsEditingNewTeam] = useState(false);
   //TODO - team api 연결하기
-  // const team_list = useSelector((state) => state.user.team_list);
-  const team_list = {
-    joined: [{
-      "id": 1,
-      "name": "testname",
-      "location": ["서울시노원구"],
-      "description": "test소개글",
-      "logo": "",
-      "time": [["월", "1012"], ["화", "2021"]],
-      "captin": "testid",
-      "rank": "unrank",
-    }], unjoined: []
-  }
+  const teamList = useSelector((state) => state.team.userTeams);
+  // let teamList = [...team_List]
+  // teamList.push({
+  //   id: 16,
+  //   name: "Sunny Eleven",
+  //   ownerYn: "Y"
+  // });
+
   const alert = () => {
     Swal.fire({
       html: `원활한 매칭을 위해<br/>팀은 2개만 만들 수 있어요 😸`,
@@ -43,56 +40,60 @@ function TeamManagement() {
     setIsEditingNewTeam(false);
   };
   useEffect(() => {
-    dispatch(teamActions.getTeamDB());
+    dispatch(teamActions.getUserTeamsDB());
+    console.log(teamList)
+    const teams = localStorage.getItem("userTeams")
+
   }, []);
 
   return (
     <>
       <ContentBox>
         <ListBox>
-          <BoxTitle>마이 </BoxTitle>
-          {team_list.joined.map((team, idx) => {
+          <BoxTitle>마이 팀</BoxTitle>
+
+          {teamList && teamList.map((team, idx) => {
             return (
-              <GroupBox key={team.id} onClick={() => {
-                history.push(`/team/profile/${team.id}`);
-              }}>
-                {team.logo ? <>
-                  <Image src={team.logo}
-                    width="50px"
-                    height="45px"
-                    contain />
-                </> :
-                  <>
-                    <FontAwesomeIcon icon={faPersonRunning} />
-                  </>}
-                <TextBox>
-                  <Text size="15px" $title>
-                    {team.name}
-                  </Text>
-                </TextBox>
+              <GroupBox key={team.id}>
+                <Link to={`/team/profile/${team.id}`}>
+                  {team.logo ? <>
+                    <Image src={team.logo}
+                      width="50px"
+                      height="45px"
+                      contain />
+                  </> :
+                    <>
+                      <FontAwesomeIcon icon={faPersonRunning} />
+                    </>}
+                  <TextBox>
+                    <Text size="15px" $title>
+                      {team.name}
+                    </Text>
+                  </TextBox>
+                </Link>
               </GroupBox>
             );
           })}
         </ListBox>
-        {team_list.joined.length == 0 && (
-          <Grid $margin="0 10px 0 32px" width="85%" height="120px">
-            <Grid>
-              <Text $title $bold>
-                원하는 팀을{" "}
-              </Text>
-              <Text $title $bold>
-                못 찾으셨나요?{" "}
-              </Text>
-              <Text $title $bold>
-                <Point>나만의 팀</Point>을 만드세요!{" "}
-              </Text>
-            </Grid>
+
+        <Grid margin="0 10px 0 32px" width="85%" height="120px">
+          <Grid>
+            <Text $title $bold>
+              원하는 팀을{" "}
+            </Text>
+            <Text $title $bold>
+              못 찾으셨나요?{" "}
+            </Text>
+            <Text $title $bold>
+              <Point>나만의 팀</Point>을 만드세요!{" "}
+            </Text>
           </Grid>
-        )}
+        </Grid>
+        {/* {teamList.length === 0 && ( )} */}
         <IconBox>
           {!isEditingNewTeam && (
             <>
-              {team_list.joined.length >= 2 ? (
+              {teamList && teamList.length >= 2 ? (
                 <IconBox onClick={alert}>
                   <FontAwesomeIcon icon={faPeopleGroup} style={{ color: "#e3344e", fontSize: 45 }} />
                   <FontAwesomeIcon icon={faPlus} />
@@ -106,7 +107,7 @@ function TeamManagement() {
             </>
           )}
         </IconBox>
-        {isEditingNewTeam && (<CreateTeamModal stopEditing={stopEditingHandler} />)}
+        {isEditingNewTeam && (<TeamForm stopEditing={stopEditingHandler} isCreating="true" isUpdate='false' />)}
       </ContentBox>
     </>
   );

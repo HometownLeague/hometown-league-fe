@@ -3,84 +3,98 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 
-import { API_URL } from '../lib/constants'
-
 //Action Types
 const GET_TEAM = "GET_TEAM";
 const CREATE_TEAM = "CREATE_TEAM";
 const DELETE_TEAM = "DELETE_TEAM";
 const ADD_MEMBER = "ADD_MEMBER";
 const LOADING = "LOADING";
+const GET_USER_TEAMS = "GET_USER_TEAMS";
 const GET_RANK = "GET_RANK";
 
 const initialState = {
-  team_list: {
-    joined: [{
-      "id": 1,
-      "name": "testname",
-      "location": ["서울시노원구"],
-      "description": "test소개글",
-      "logo": "imageUrl",
-      "time": [["월", "1012"], ["화", "2021"]],
-      "captin": "testid",
-      "rank": "unrank",
-    }],
-    unjoined: [],
-  },
-  teamId: null,
+  teamList: [],
+  userTeams: [],
   rank: [],
   isLoading: false,
 };
 
-const getTeam = createAction(GET_TEAM, (team_list) => ({ team_list }));
+const getTeam = createAction(GET_TEAM, (teamList) => ({ teamList }));
 const createTeam = createAction(CREATE_TEAM, (team) => ({ team }));
 const deleteTeam = createAction(DELETE_TEAM, (team) => ({ team }));
 const addMember = createAction(ADD_MEMBER, (team) => ({ team }));
 const loading = createAction(LOADING, (isLoading) => ({ isLoading }));
+const getUserTeams = createAction(GET_USER_TEAMS, (userTeams) => ({ userTeams }));
+
 //const getRank = createAction(GET_RANK, (rank) => ({ rank }));
 
-const getTeamDB = () => {
+const getTeamDB = (teamId) => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
     axios
-      .get(`/team`)
+      .get(`/team/${teamId}`)
       .then((response) => {
-        switch (response.data.responseCode === "0000") {
-          case "success":
-            dispatch(getTeam(response.data));
-            break;
-          case "not_login":
-            history.push("/");
-            Swal.fire({
-              text: "로그인 만료되었습니다.",
-              confirmButtonColor: "rgb(118, 118, 118)",
-            });
-            break;
-          default:
-            Swal.fire({
-              text: "팀 불러오기에 실패했습니다. ",
-              confirmButtonColor: "#E3344E",
-            });
-            break;
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
+          dispatch(getTeam(response.data));
+        }
+        else if (response.data.responseCode.code === "1004") {
+          history.push("/");
+          Swal.fire({
+            text: "로그인 만료되었습니다.",
+            confirmButtonColor: "rgb(118, 118, 118)",
+          });
+        } else {
+          Swal.fire({
+            text: "팀 불러오기에 실패했습니다. ",
+            confirmButtonColor: "#E3344E",
+          });
         }
       })
       .catch((err) => console.log(err));
   };
 };
+
+const getUserTeamsDB = (id) => {
+  return function (dispatch, { history }) {
+    axios({
+      method: "get",
+      url: `/user/team`,
+      data: {
+        id: id
+      }
+    }).then((response) => {
+      if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
+        dispatch(getUserTeams());
+        localStorage.setItem("userTeams", response.data.data);
+      } else if (response.data.responseCode.code === "1005") {
+        Swal.fire({
+          text: response.data.responseCode.message,
+          confirmButtonColor: "#E3344E",
+        });
+      }
+    })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+}
 const createTeamDB = (teamInfo) => {
   return function (dispatch, { history }) {
     axios
       .post(`/team`, teamInfo)
       .then((response) => {
         switch (response.data.responseCode.code) {
-          case "0000":
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
             dispatch(createTeam(teamInfo));
-            break;
-          //FIXME - case 만료 설정
-          case "not_login":
             Swal.fire({
-              text: "로그인 만료되었습니다.",
+              text: "새로운 팀을 만들었습니다!",
               confirmButtonColor: "rgb(118, 118, 118)",
+            })
+            break;
+          case '2001':
+            Swal.fire({
+              text: "시간 입력에 실패했습니다.",
+              confirmButtonColor: "#E3344E",
             });
             history.push("/");
             break;
@@ -96,7 +110,7 @@ const createTeamDB = (teamInfo) => {
   };
 };
 
-const deleteTeamDB = (team) => {
+const deleteTeamDB = (teamId) => {
   return function (dispatch, { history }) {
     Swal.fire({
       icon: "warning",
@@ -109,12 +123,12 @@ const deleteTeamDB = (team) => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`/team/${team.teamId}`)
+          .delete(`/team/${teamId}`)
           .then((response) => {
             switch (response.data.responseCode.code) {
               case "0000":
                 Swal.fire("삭제 완료!", "팀이 삭제되었습니다.", "success");
-                dispatch(deleteTeam(team));
+                dispatch(deleteTeam(teamId));
                 window.location.href = '/team';
                 break;
               //FIXME - case 만료 설정
@@ -186,25 +200,34 @@ export default handleActions(
   {
     [GET_TEAM]: (state, action) =>
       produce(state, (draft) => {
-        draft.team_list = action.payload.team_list;
+        draft.teamList = action.payload.teamList;
         draft.isLoading = false;
       }),
+    [GET_USER_TEAMS]: (state, action) => produce(state, (draft) => {
+      draft.userTeams = action.payload.userTeams;
+      draft.isLoading = false;
+    }),
     [CREATE_TEAM]: (state, action) =>
       produce(state, (draft) => {
-        draft.team_list.joined.unshift(action.payload.team);
+        draft.userTeams.unshift(action.payload.team);
+        draft.teamList = draft.teamList.filter(
+          (team) => team.teamId !== action.payload.team.teamId
+        );
       }),
     [DELETE_TEAM]: (state, action) =>
       produce(state, (draft) => {
-        draft.team_list.joined = draft.team_list.joined.filter(
+        Swal.fire({
+          text: '팀이 삭제 되었습니다.',
+          confirmButtonColor: '#7F58EC',
+          confirmButtonText: '확인',
+        });
+        draft.teamList = draft.teamList.filter(
           (team) => team.teamId !== action.payload.team.teamId
         );
       }),
     [ADD_MEMBER]: (state, action) =>
       produce(state, (draft) => {
-        draft.team_list.joined.unshift(action.payload.team);
-        draft.team_list.unjoined = draft.team_list.unjoined.filter(
-          (team) => team.teamId !== action.payload.team.teamId
-        );
+        //TODO - 가입 시키기에서 바뀔 state
       }),
     [LOADING]: (state, action) =>
       produce(state, (draft) => {
@@ -216,6 +239,8 @@ export default handleActions(
 
 const actionCreators = {
   getTeam,
+  getUserTeams,
+  getUserTeamsDB,
   createTeam,
   deleteTeam,
   addMember,
@@ -224,7 +249,6 @@ const actionCreators = {
   deleteTeamDB,
   addMemberDB,
   loading,
-
 };
 
 export { actionCreators };
