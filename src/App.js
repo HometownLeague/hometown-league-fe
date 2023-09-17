@@ -10,7 +10,7 @@ import { replace } from 'redux-first-history';
 function App() {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const loginToken = '';
+  const loginToken = useSelector((state) => state.user.token);
 
   useEffect(() => {
     if (!user && window.location.pathname !== "/join"

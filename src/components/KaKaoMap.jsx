@@ -6,6 +6,8 @@ function KaKaoMap({searchplace,setLocation}) {
   const [info, setInfo] = useState()
   const [markers, setMarkers] = useState([])
   const [map, setMap] = useState()
+  const [position, setPosition] = useState()
+
   const [coordinates, setCoordinates] = useState(null); // 현재 위치의 좌표값을 저장할 상태
 	const mapRef = useRef();
 
@@ -56,11 +58,11 @@ function KaKaoMap({searchplace,setLocation}) {
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
         // LatLngBounds 객체에 좌표를 추가합니다
         const bounds = new kakao.maps.LatLngBounds()
-        let markers = []
+        let marker = []
 
         for (var i = 0; i < data.length; i++) {
           // @ts-ignore
-          markers.push({
+          marker.push({
             position: {
               lat: data[i].y,
               lng: data[i].x,
@@ -70,16 +72,17 @@ function KaKaoMap({searchplace,setLocation}) {
           // @ts-ignore
           bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x))
         }
-        setMarkers(markers)
+        setMarkers(marker)
 
         // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
         map.setBounds(bounds)
       }
     })
-  }, [searchplace,map])
-
+ 
+  }, [searchplace])
   return (
-    <Map // 로드뷰를 표시할 Container
+    <>
+    <Map
       center={{
         lat: 37.566826,
         lng: 126.9786567,
@@ -90,6 +93,15 @@ function KaKaoMap({searchplace,setLocation}) {
       }}
       level={3}
       onCreate={setMap}
+    //   onClick={(_t, mouseEvent) => {
+    //     setPosition({position:{
+    //        lat: mouseEvent.latLng.getLat(),
+    //     lng: mouseEvent.latLng.getLng()
+    //     }
+    //   })
+    //   console.log(position)
+    //   setMarkers(curr=>curr.push(position))
+    // }}
     >
       {markers.map((marker) => (
         <MapMarker
@@ -103,6 +115,7 @@ function KaKaoMap({searchplace,setLocation}) {
         </MapMarker>
       ))}
     </Map>
+    </>
   )
 }
 

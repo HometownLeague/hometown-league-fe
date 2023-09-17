@@ -48,7 +48,7 @@ const persistedReducer = persistReducer(persistConfig, reducers);
 export const store = configureStore({
   reducer: persistedReducer,
   enhancer: enhancer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(routerMiddleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }).concat(routerMiddleware),
 });
 
 export const history = createReduxHistory(store);

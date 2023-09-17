@@ -39,12 +39,24 @@ function TeamManagement() {
   const stopEditingHandler = () => {
     setIsEditingNewTeam(false);
   };
-  useEffect(() => {
-    dispatch(teamActions.getUserTeamsDB());
-    console.log(teamList)
-    const teams = localStorage.getItem("userTeams")
+  const { openModal } = useModals();
+  const openLoginModal = () => {
+    openModal(modals.loginModal, { onsubmit: (value) => { console.log(value) } });
+  };
 
-  }, []);
+  useEffect(() => {
+    if (!user) {
+      Swal.fire({
+        text: "로그인 후 이용 가능합니다. ",
+        confirmButtonColor: "#E3344E",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          openLoginModal();
+        }
+      })
+    }
+    dispatch(teamActions.getUserTeamsDB());
+  }, [user]);
 
   return (
     <>

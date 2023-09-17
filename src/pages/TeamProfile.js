@@ -1,6 +1,7 @@
 import React, { Fragment, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
+import { useParams } from 'react-router-dom';
 
 import { Link } from 'react-router-dom';
 import { actionCreators as teamAction } from "../redux/teamApi";
@@ -17,11 +18,13 @@ import { modals } from '../components/modal/Modals';
 
 const { Header, Footer, Sider, Content } = Layout;
 
-function TeamProfile({ teamId, isOwner }) {
-
+function TeamProfile() {
+  const params = useParams()
+  const teamId = params.id
   const dispatch = useDispatch();
   const [teamData, setTeamData] = useState({})
   const [teamPlayers, setTeamPlayers] = useState([])
+  const [isOwner, setIsOwner] = useState(false)
   const user = useSelector((state) => state.user.user);
   // const isLoading = useSelector((state) => state.teamData.isLoading);
 
@@ -31,13 +34,14 @@ function TeamProfile({ teamId, isOwner }) {
   };
 
   useEffect(() => {
-    //dispatch(teamAction.getTeamDB(teamId));
+
+    //dispatch(teamAction.getTeamDetailDB(teamId));
     axios({
       method: "get",
       url: `/team/${teamId}`,
     })
       .then((response) => {
-        if (response.data.responseCode.code === "0000") {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamData(response.data.data)
         } else {
           Swal.fire({
@@ -52,7 +56,7 @@ function TeamProfile({ teamId, isOwner }) {
       url: `/team/${teamId}/players`,
     })
       .then((response) => {
-        if (response.data.responseCode.code === "0000") {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamPlayers(response.data.data.users)
         } else {
           Swal.fire({
@@ -62,35 +66,8 @@ function TeamProfile({ teamId, isOwner }) {
         }
       })
       .catch((err) => console.log(err));
-    setTeamData({
-      "id": 16,
-      "name": "Sunny Eleven",
-      "ciPath": "..",
-      "description": "테스트 설명입니다.",
-      "rankScore": 0,
-      "rank": "UNRANKED",
-      "kind": 1,
-      "ownerYn": "Y",
-      "time": [{
-        "id": 1,
-        "dayOfWeek": 1,
-        "playTimeFrom": "1000",
-        "playTimeTo": "1200"
-      }, {
-        "id": 2,
-        "dayOfWeek": 2,
-        "playTimeFrom": "2000",
-        "playTimeTo": "2200"
-      }],
-      "location": [{
-        "id": 1,
-        "latitude": 37.6317692339419,
-        "longitude": 127.0803445512275,
-        "legalCode": "11350103",
-        "jibunAddress": "서울특별시 노원구 공릉동 172",
-        "roadAddress": "서울특별시 노원구 공릉로 232"
-      }]
-    })
+    if (teamData.ownerId !== user.id) setIsOwner(false)
+    else setIsOwner(true)
   }, [])
 
   return (
@@ -111,14 +88,13 @@ function TeamProfile({ teamId, isOwner }) {
               <Text size="20px" color='black'>
                 {teamData.name}
               </Text>
-              {!isOwner && (
+              {isOwner && (
                 <IconBox>
                   <IconInnerBox>
-                    <FontAwesomeIcon icon={faPenToSquare} size='2L' onClick={openUpdateTeamModal} />
+                    <FontAwesomeIcon icon={faPenToSquare} size='2L' color='black' onClick={openUpdateTeamModal} />
                   </IconInnerBox>
                 </IconBox>
               )}
-
             </TeamNameBox>
             <ButtonBox>
               <Button
@@ -132,7 +108,7 @@ function TeamProfile({ teamId, isOwner }) {
                 _onClick={() => {
                   history.push(`/team/${teamId}/gameResult`)
                 }}> 경기 결과 조회 </Button>
-              {!isOwner ? (
+              {isOwner ? (
                 <ButtonBox>
                   <Button radius="5px 5px 5px 5px"
                     size="12px"
@@ -164,7 +140,6 @@ function TeamProfile({ teamId, isOwner }) {
 
             </ButtonBox>
           </Sider>
-
           <Content >
             <ListBox>
               <BoxTitle>
@@ -174,39 +149,27 @@ function TeamProfile({ teamId, isOwner }) {
                 <Text bold margin="0 0 2px 0"> {teamData.name}</Text>
                 <Text>{teamData.rankScore}</Text>
                 <Text size="14px">{teamData.description}</Text>
-
               </TeamBox>
-
             </ListBox>
             <BoardList>
               {/* 선수단 div*/}
               <BoxTitle>선수단</BoxTitle>
               <Grid>
-                {/* 주장
-              <Player className="first">
-                <Image
-                  src="../images/tropy.png"
-                  width="27px"
-                  height="40px"
-                  contain
-                />
-                <Text bold title>
-                  {.nickname}
-                </Text>
-              </Player> */}
                 {teamPlayers.map((p, idx) => {
-                  <Player>
-                    <Image
-                      src={Playerimg}
-                      width="30px"
-                      height="40px"
-                      contain
-                    />
-                    <Text bold title>
-                      {p.nickname}
-                    </Text>
+                  return (
+                    <Player>
+                      <Image
+                        src={Playerimg}
+                        width="30px"
+                        height="40px"
+                        contain
+                      />
+                      <Text bold title>
+                        {p.nickname}
+                      </Text>
 
-                  </Player>
+                    </Player>
+                  )
                 })}
               </Grid>
 

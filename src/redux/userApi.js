@@ -87,7 +87,9 @@ const loginDB = (id, password) => {
           // const accessToken=
           localStorage.setItem("user", JSON.stringify(response.data.data));
           localStorage.setItem("loginToken", response.headers)
-          dispatch(push("/"))
+          if (window.location.pathname == "/join") {
+            dispatch(replace("/"))
+          }
         } else {
           Swal.fire({
             text: "아이디 혹은 비밀번호를 확인해주세요.",
@@ -167,6 +169,7 @@ const loginCheckDB = () => {
   return function (dispatch, getState, { history }) {
     const token = localStorage.getItem("loginToken");
     console.log(token);
+    axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
     axios({
       method: "post",
       url: "API_URL/user/check",

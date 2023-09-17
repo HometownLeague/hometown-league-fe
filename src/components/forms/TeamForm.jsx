@@ -1,6 +1,7 @@
 import React,{useEffect, useRef,useCallback,useState} from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
+import dayjs from "dayjs";
 
 import { SmileOutlined, UserOutlined } from '@ant-design/icons';
 import styled from "styled-components";
@@ -46,7 +47,6 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
   const [location,onChangeLocation]=useInput("");
   const [searchLocation,onChangeSearchLocation]=useInput("");
   const [time,onChangeTime]=useInput("")
-  const [timeList,onChangeTimeList]=useInput([])
   const [desc, onChangeDesc] = useInput("");
   const [teamLogo,onChangeTeamLogo]=useState("");
 
@@ -119,6 +119,9 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
 
   //모달 열기 닫기 함수
   const handleClickSubmit = useCallback(({teamname,location,timeList,desc,teamLogo})=>{
+    timeList=timeList.map(e=>{
+      console.log(e.timeline)
+    })
     const data={
       name: teamname,
       kind:1,
@@ -131,10 +134,6 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
     dispatch(teamAction.createTeamDB(data));
     window.location.reload();
   },[])
-
-  const addTime=(time, timeString) => {
-    console.log(time, timeString);
-  };
 
   useEffect(()=>{
     //TODO - update일때 폼 초기값 설정
@@ -164,15 +163,15 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
       span: 14,
     }}
     layout="horizontal"
-    style={{
-      maxWidth: 600,
-      maxHeight:400
-    }}
+    // style={{
+    //   maxWidth: 600,
+    //   maxHeight:400
+    // }}
     onFinish={handleClickSubmit}
-    initialValues={initialFormValue}
+    initialValues={isUpdate?initialFormValue:{  timeList: [{ dayofweek: "1" }] }}
 >
-    <Form.Item label="팀 명"  name="teamname"  
-     rules={[{ validator: validateTeamname }]}validateTrigger= 'onBlur' hasFeedback>
+    <Form.Item label="팀 명"  name="teamname"
+     rules={[{ validator: validateTeamname }]} validateTrigger= 'onBlur' hasFeedback>
       <Input placeholder="팀 명" value={teamname} onChange={onChangeTeamName}  onBlur={onBlurTeamname}/>
     </Form.Item>
     <Form.Item label="종목"  rules={[{ required: true }]}>
@@ -180,75 +179,14 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
         <Select.Option value="soccer">축구</Select.Option>
       </Select>
     </Form.Item>
-    {/* <Form.Item label="활동 지역" name="location" onChange={onChangeLocation} rules={[{ required: true, message: '활동 지역을 설정해주세요' }]}>
-      <Form.Item  name="searchLocation">
-        <Input placeholder="위치 검색" type="text" value={searchLocation} onSearch={onChangeSearchLocation}style={{
-        width: 200,
-      }}/>
-      </Form.Item>
-      <KakaoMap search={searchLocation}/>
-    </Form.Item> */}
-    <Form.Provider
-      onFormFinish={(name, { values, forms }) => {
-        if (name === 'locationForm') {
-          const { basicForm } = forms;
-          const locations = basicForm.getFieldValue('location') || [];
-          basicForm.setFieldsValue({
-            locations: [...location, values],
-          });
-        }
-      }}
-    >
-      <Form
-        {...layout}
-        name="locationForm"
-        onFinish={onChangeLocation}
-        style={{
-          maxWidth: 600,
-        }}
-      >
-        <Form.Item name="locations" hidden />
-        <Form.Item
-          label="홛동 지역" rules={[
-            {
-              required: true,
-            },
-          ]}
-          shouldUpdate={(prevValues, curValues) => prevValues.locations !== curValues.locations}
-        >
-          {({ getFieldValue }) => {
-            const locations = getFieldValue('locations') || [];
-            return locations.length ? (
-              <ul>
-                {locations.map((location) => (
-                  <li key={location} className="location">
-                    <Space>
-                      {`${location}`}
-                    </Space>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <Typography.Text className="ant-form-text" type="secondary">
-                ( 장소는 하나 이상 있어야 합니다.)
-              </Typography.Text>
-            );
-          }}
-        </Form.Item>
-        <Form.Item {...tailLayout}>
-          {/* <Button htmlType="submit" type="primary">
-            Submit
-          </Button> */}
 
-          <Button  htmlType="button" type="dashed" onClick={openSearchMapModal} block icon={<PlusOutlined />}>
-              장소 추가하기
-              </Button>
-        </Form.Item>
-      </Form>
-    </Form.Provider>
     {/* //FIXME - 시간 하나 이상 설정*/}
-    <Form.Item label="활동 시간대" name="timeList" >
-    <Form.List name='time'>
+    <Form.Item label="활동 시간대" >
+      <Form.List name='timeList' rules={[{  validator: async (_, tl) => {
+      if (!tl|| tl.length < 2) {
+        return Promise.reject(new Error('활동 시간대는 하나 이상 있어야합니다. '));
+      }
+    }}]} >
         {(fields, { add, remove }) => (
           <>
             {fields.map(({ key, name, ...restField }) => (
@@ -256,19 +194,42 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
                 key={key}
                 style={{
                   display: 'flex',
-                  marginBottom: 8,
                 }}
                 align="baseline"
               >
-                <Form.Item
+                <Form.Item  {...restField}
+                  name={[name,"dayofweek"]}  rules={[
+                    {
+                      required: true,
+                      message: 'Missing 요일',
+                    },
+                  ]}>
+                    <Select
+                    placeholder="요일"
+                    style={{
+                      width: 100,
+                    }}
+                  >
+                    <Select.Option value="1">월요일</Select.Option>
+                    <Select.Option value="2">화요일</Select.Option>
+                    <Select.Option value="3">수요일</Select.Option>
+                    <Select.Option value="4">목요일</Select.Option>
+                    <Select.Option value="5">금요일</Select.Option>
+                    <Select.Option value="6">토요일</Select.Option>
+                    <Select.Option value="7">일요일</Select.Option>
+                  </Select>
+                  </Form.Item>
+                  <Form.Item
                   {...restField}
-                  name={[name,"timeline"]}
-
-                >
-                  <TimePicker.RangePicker  use12Hours format="a h:mm"  value={time}/>
-
-                </Form.Item>
-                <MinusCircleOutlined onClick={() => remove(name)} />
+                  name={[name,"timeline"]}  rules={[
+                    {
+                      required: true,
+                      message: 'Missing time',
+                    },
+                  ]}>
+                    <TimePicker.RangePicker  use12Hours format="HH:mm"  value={time} minuteStep={30}/>
+                  </Form.Item>
+                  <MinusCircleOutlined onClick={() => remove(name)} />
               </Space>
             ))}
             <Form.Item>
@@ -277,13 +238,53 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
               </Button>
             </Form.Item>
           </>
+          )}
+        </Form.List>
+      </Form.Item>
+      <Form.Item label="활동 지역">
+        <Form.List name='locationList' rules={[{  validator: async (_, tl) => {
+        if (!tl|| tl.length < 2) {
+          return Promise.reject(new Error('활동 시간대는 하나 이상 있어야합니다. '));
+        }}}]} >
+          {(fields, { add, remove }) => (
+          <>
+            {fields.map(({ key, name, ...restField }) => (
+              <Space
+                key={key}
+                style={{
+                  display: 'flex',
+                }}
+                align="baseline"
+              >
+                <Form.Item  {...restField}
+                  name={[name,"location"]}  rules={[
+                    {
+                      required: true,
+                      message: 'Missing location',
+                    },
+                  ]}>
+                   
+                  </Form.Item>
+                  <MinusCircleOutlined onClick={() => remove(name)} />
+              </Space>
+            ))}
+            <Form.Item>
+              <Button type="dashed" onClick={() => {
+                add()
+                openSearchMapModal()
+              }} block icon={<PlusOutlined />}>
+              활동 지역 추가하기
+              </Button>
+            </Form.Item>
+          </>
         )}
       </Form.List>
-      </Form.Item>
 
-    <Form.Item label="팀 소개글">
+    </Form.Item>
+    <Form.Item label="팀 소개글" name="desc">
       <TextArea rows={4} placeholder='팀 소개글을 작성해주세요' value={desc} onChange={onChangeDesc}/>
     </Form.Item>
+
     {/* //FIXME - 사진 url 지정 */}
     <Form.Item label="팀 로고" valuePropName="fileList" getValueFromEvent={normFile}>
     <Upload name="logo" action="/upload.do" listType="picture" onChange={onChangeTeamLogo}>
@@ -295,6 +296,9 @@ function TeamForm({stopEditing,isCreating,onsubmit,onClose,isUpdate,teamId}) {
       Submit
     </Button>
     </Form.Item>
+    <Typography>
+            <pre>{JSON.stringify(form.getFieldsValue(), null, 2)}</pre>
+          </Typography>
   </Form>
   </>
   )

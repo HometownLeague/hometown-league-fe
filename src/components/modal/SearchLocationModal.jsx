@@ -7,14 +7,14 @@ import KakaoMap from '../KaKaoMap.jsx';
 import useInput from '../useInput';
 
 const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
+  // content: {
+  //   top: '50%',
+  //   left: '50%',
+  //   right: 'auto',
+  //   bottom: 'auto',
+  //   marginRight: '-50%',
+  //   transform: 'translate(-50%, -50%)',
+  // },
 };
 // reset form fields when modal is form, closed
 const useResetFormOnCloseModal = ({ form, open }) => {
