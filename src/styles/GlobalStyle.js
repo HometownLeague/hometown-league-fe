@@ -2,12 +2,10 @@ import { createGlobalStyle } from "styled-components";
 //import reset from "styled-reset";
 // ${reset}
 const GlobalStyle = createGlobalStyle`
-
-
   :root{
     --yellow1:#FFFADD;
     --yellow2: #FFCC70;
-    --blue1: #8ECDDD;    h
+    --blue1: #8ECDDD;    
     --blue2: #00AFF0;
     --blue3: #22668D;
   }

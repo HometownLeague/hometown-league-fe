@@ -64,7 +64,7 @@ function TeamManagement() {
         <ListBox>
           <BoxTitle>마이 팀</BoxTitle>
 
-          {teamList && teamList.map((team, idx) => {
+          {user && teamList && teamList.map((team, idx) => {
             return (
               <GroupBox key={team.id}>
                 <Link to={`/team/profile/${team.id}`}>
@@ -101,7 +101,6 @@ function TeamManagement() {
             </Text>
           </Grid>
         </Grid>
-        {/* {teamList.length === 0 && ( )} */}
         <IconBox>
           {!isEditingNewTeam && (
             <>
@@ -119,7 +118,7 @@ function TeamManagement() {
             </>
           )}
         </IconBox>
-        {isEditingNewTeam && (<TeamForm stopEditing={stopEditingHandler} isCreating="true" isUpdate='false' />)}
+        {isEditingNewTeam && (<TeamForm onClose={stopEditingHandler} isCreating="true" isUpdate='false' />)}
       </ContentBox>
     </>
   );

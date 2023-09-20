@@ -3,11 +3,12 @@ import { ModalsStateContext, ModalsDispatchContext } from './ModalsContext';
 import LoginModal from './LoginModal';
 import CreateTeamModal from './CreateTeamModal';
 import SearchLocationModal from './SearchLocationModal';
-
+import ChangeOwnerModal from './ChangeOwnerModal';
 export const modals = {
   loginModal: LoginModal,
   createTeamModal: CreateTeamModal,
-  searchLocationModal: SearchLocationModal
+  searchLocationModal: SearchLocationModal,
+  changeOwnerModal: ChangeOwnerModal
 };
 const Modals = () => {
   const openedModals = useContext(ModalsStateContext);

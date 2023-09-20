@@ -24,33 +24,26 @@ function TeamProfile() {
   const dispatch = useDispatch();
   const [teamData, setTeamData] = useState({})
   const [teamPlayers, setTeamPlayers] = useState([])
-  const [isOwner, setIsOwner] = useState(false)
   const user = useSelector((state) => state.user.user);
+  const alluserteam = useSelector((state) => state.team.userTeams);
   // const isLoading = useSelector((state) => state.teamData.isLoading);
 
   const { openModal } = useModals();
   const openUpdateTeamModal = () => {
-    openModal(modals.createTeamModal, { onsubmit: (value) => { console.log(value) } });
+    openModal(modals.createTeamModal, { teamId: teamId, onsubmit: (value) => { console.log(value) } });
   };
+  const openUpdateTeamOwnerModal = () => {
+    openModal(modals.changeOwnerModal, { teamId: teamId, onsubmit: (value) => { console.log(value) } });
+  }
+  const clickLeaveTeam = () => {
 
+  }
   useEffect(() => {
-
-    //dispatch(teamAction.getTeamDetailDB(teamId));
-    axios({
-      method: "get",
-      url: `/team/${teamId}`,
-    })
-      .then((response) => {
-        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
-          setTeamData(response.data.data)
-        } else {
-          Swal.fire({
-            text: response.data.responseCode.message,
-            confirmButtonColor: "#E3344E",
-          });
-        }
-      })
-      .catch((err) => console.log(err));
+    //TODO - 유저의 팀 어떻게 가져올지 ..
+    dispatch(teamAction.getTeamDetailDB(teamId));
+    const data = alluserteam.filter(team => team.id == teamId)
+    console.log(alluserteam)
+    setTeamData(data[0])
     axios({
       method: "get",
       url: `/team/${teamId}/players`,
@@ -66,8 +59,6 @@ function TeamProfile() {
         }
       })
       .catch((err) => console.log(err));
-    if (teamData.ownerId !== user.id) setIsOwner(false)
-    else setIsOwner(true)
   }, [])
 
   return (
@@ -82,59 +73,51 @@ function TeamProfile() {
               width="220px"
               height="80px"
               margin="30px 0 0 0"
+              radius="100%"
               contain
             />
             <TeamNameBox>
-              <Text size="20px" color='black'>
+              <Text size="20px" color='black' bold title>
                 {teamData.name}
               </Text>
-              {isOwner && (
-                <IconBox>
-                  <IconInnerBox>
-                    <FontAwesomeIcon icon={faPenToSquare} size='2L' color='black' onClick={openUpdateTeamModal} />
-                  </IconInnerBox>
-                </IconBox>
+              {teamData.ownerId == user.id && (
+                <FontAwesomeIcon icon={faPenToSquare} size='xl' color='black' onClick={openUpdateTeamModal} />
               )}
             </TeamNameBox>
             <ButtonBox>
               <Button
                 radius="5px 5px 5px 5px"
-                size="12px"
-
+                size="20px"
                 padding=" 3.6px 0"
                 margin="0 0 10px 0"
-                bg="#ffffff"
-                color="#8ECDDD"
+                color="#ffffff"
                 _onClick={() => {
                   history.push(`/team/${teamId}/gameResult`)
                 }}> 경기 결과 조회 </Button>
-              {isOwner ? (
+              {teamData.ownerId == user.id ? (
                 <ButtonBox>
                   <Button radius="5px 5px 5px 5px"
-                    size="12px"
+                    size="20px"
                     padding=" 3.6px 0"
                     margin="0 0 10px 0"
-                    bg="#ffffff"
-                    color="#8ECDDD"
-                    _onClick={openUpdateTeamModal}> 주장 변경 </Button>
+                    color="#ffffff"
+                    _onClick={openUpdateTeamOwnerModal}> 주장 변경 </Button>
                   <Button radius="5px 5px 5px 5px"
-                    size="12px"
+                    size="20px"
                     padding=" 3.6px 0"
                     margin="0 0 10px 0"
-                    bg="#ffffff"
-                    color="#8ECDDD"
+                    color="#ffffff"
                     _onClick={() => {
-
                     }}> 매칭 요청 </Button>
                 </ButtonBox>
               ) : (
                 <Button radius="5px 5px 5px 5px"
-                  size="12px"
+                  size="20px"
                   padding=" 3.6px 0"
                   margin="0 0 10px 0"
-                  bg="#ffffff"
-                  color="#8ECDDD"
+                  color="#ffffff"
                   _onClick={() => {
+                    dispatch(teamAction.leaveTeamDB())
                   }}> 탈퇴하기 </Button>
               )}
 
@@ -143,34 +126,30 @@ function TeamProfile() {
           <Content >
             <ListBox>
               <BoxTitle>
-
               </BoxTitle>
-              <TeamBox>
-                <Text bold margin="0 0 2px 0"> {teamData.name}</Text>
-                <Text>{teamData.rankScore}</Text>
-                <Text size="14px">{teamData.description}</Text>
-              </TeamBox>
+              {/* <TeamBox>
+              </TeamBox> */}
+              <Text bold margin="0 0 2px 0"> {teamData.name}</Text>
+              <Text>{teamData.rankScore}</Text>
+              <Text size="14px">{teamData.description}</Text>
             </ListBox>
             <BoardList>
               {/* 선수단 div*/}
               <BoxTitle>선수단</BoxTitle>
               <Grid>
-                {teamPlayers.map((p, idx) => {
-                  return (
-                    <Player>
-                      <Image
-                        src={Playerimg}
-                        width="30px"
-                        height="40px"
-                        contain
-                      />
-                      <Text bold title>
-                        {p.nickname}
-                      </Text>
-
-                    </Player>
-                  )
-                })}
+                {teamPlayers.map(p => (
+                  <Player key={p.id}>
+                    <Image
+                      src={Playerimg}
+                      width="30px"
+                      height="40px"
+                      contain
+                    />
+                    <Text bold title>
+                      {p.nickname}
+                    </Text>
+                  </Player>
+                ))}
               </Grid>
 
             </BoardList>
@@ -201,51 +180,49 @@ function TeamProfile() {
 }
 
 export default TeamProfile;
-
-const Logo = styled.img`
-
-`;
-const TeamNameBox = styled.div`
-  flex-direction: row;
-
-`;
 const siderStyle = {
   textAlign: 'center',
   lineHeight: '120px',
   color: '#fff',
   backgroundColor: '#FFFADD',
+  background: "#FFFADD",
   left: 0,
+
 };
+const Logo = styled.img`
+
+`;
+const TeamNameBox = styled.div`
+
+
+  height:30px;
+  box-sizing:border-box;
+  display: flex;
+  justify-content:space-between;
+  align-items: center;
+`;
+
 
 const ButtonBox = styled.div`
+cursor: pointer;
+text-align: center;
+display: flex;
+flex-direction: column;
+gap:30px;
+margin:25px 0px;
 
 `
 const IconBox = styled.div`
-    cursor: pointer;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap:30px;
-    margin:25px 0px;
-    @media all and (max-width:767px)
- {width:100%;}
+//   cursor: pointer;
+//   text-align: center;
+//   display: flex;
+//   flex-direction: column;
+//   gap:30px;
+//   margin:25px 0px;
+//   @media all and (max-width:767px)
+//  {width:100%;}
 `
 
-const IconInnerBox = styled.div`
-    border-radius: 12px;
-    width:50px;
-    height: 50px;
-    box-sizing: border-box;
-    padding-top:7px;
-
-    @media all and (max-width:767px)
- {width:100%;}
-
-    &:hover{
-        background-color: #ed5c72;
-        border:1px solid #ed5c72;
-    }
-`
 const AnnouncementContent = styled.div`
 display:flex;
 @media all and (max-width:767px)
@@ -281,9 +258,6 @@ const ListBox = styled.div`
   margin-bottom: 30px;
   @media all and (max-width: 1023px) {
     width: 90%;
-  }
-  & :last-child {
-    margin: 0px;
   }
   position: relative;
 `;

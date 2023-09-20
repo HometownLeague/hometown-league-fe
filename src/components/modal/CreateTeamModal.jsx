@@ -4,7 +4,7 @@ import useModals from './useModal';
 import {modals} from './Modals';
 import TeamForm from '../forms/TeamForm';
 
-function CreateTeamModal({onSubmit, onClose,teamId }) {
+function CreateTeamModal({onSubmit, onClose,teamId}) {
   const handleClickCancel = () => {
     onClose();
   };

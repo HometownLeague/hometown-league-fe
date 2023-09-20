@@ -22,9 +22,6 @@ function Header() {
     openModal(modals.loginModal, { onsubmit:(value)=>{console.log(value)}});
   };
 
-  useEffect(()=>{
-    console.log(localStorage.getItem("user"))
-  },[user])
   return (
     <>
     <Container>

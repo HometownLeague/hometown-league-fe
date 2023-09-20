@@ -5,7 +5,8 @@ import { Route, Routes } from 'react-router-dom';
 import { Header } from "./components"
 import { Main, Join, TeamManagement, TeamProfile } from "./pages"
 import { actionCreators as userActions } from "./redux/userApi"
-import { replace } from 'redux-first-history';
+
+import { history } from './redux/configStore';
 
 function App() {
   const dispatch = useDispatch();
@@ -13,9 +14,9 @@ function App() {
   const loginToken = useSelector((state) => state.user.token);
 
   useEffect(() => {
-    if (!user && window.location.pathname !== "/join"
+    if (window.location.pathname !== "/join"
     ) {
-      dispatch(replace("/"))
+      dispatch(userActions.loginCheckDB())
     }
   }, [])
   return (
