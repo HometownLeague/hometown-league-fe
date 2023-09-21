@@ -3,7 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
-
+import { actionCreators as userAction } from "./userApi"
 //Action Types
 const GET_QUERY_TEAM = "GET_QUERY_TEAM";
 const GET_TEAM_DETAIL = "GET_TEAM_DETAIL";
@@ -65,19 +65,17 @@ const getQueryTeamDB = (id) => {
   // };
 };
 
-//유저의 팀 정보 조회. 쿠키로 로그인 세션이 넘어감.
+//SECTION - 유저의 팀 정보 조회. 쿠키로 로그인 세션이 넘어감.
 const getUserTeamsDB = () => {
   return function (dispatch, { history }) {
     axios.get(`/user/team`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(getUserTeams(response.data.data));
-          // localStorage.setItem("userTeams", response.data.data);
         } else if (response.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
-          console.log(response)
           dispatch(replace("/"));
           Swal.fire({
-            text: "로그인 만료되었습니다.",
+            text: "세션 정보가 없습니다.",
             confirmButtonColor: "rgb(118, 118, 118)",
           });
         } else {
@@ -93,7 +91,7 @@ const getUserTeamsDB = () => {
       });
   }
 }
-//팀 상세 정보 조회
+//SECTION -팀 상세 정보 조회
 const getTeamDetailDB = (id) => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
@@ -105,8 +103,9 @@ const getTeamDetailDB = (id) => {
         }
         else if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
           dispatch(replace("/"));
+          dispatch(userAction.loginCheckDB());
           Swal.fire({
-            text: "로그인 만료되었습니다.",
+            text: "세션 정보가 없습니다.",
             confirmButtonColor: "rgb(118, 118, 118)",
           });
         } else {
@@ -119,6 +118,7 @@ const getTeamDetailDB = (id) => {
       .catch((err) => console.log(err));
   };
 };
+//SECTION -팀 생성
 const createTeamDB = (teamInfo) => {
   return function (dispatch, { history }) {
     axios

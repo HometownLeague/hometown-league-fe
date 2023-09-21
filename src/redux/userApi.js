@@ -188,10 +188,11 @@ const loginCheckDB = () => {
     // TODO - 토큰 없음
     console.log("logintoken is", token);
     axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
-    if (!token || !user) {
+    if (token === "null" || !user) {
       localStorage.clear()
       dispatch(loginCheck())
       dispatch(replace("/"));
+      console.log(user)
     } else {
       dispatch(setUser(user));
     }
