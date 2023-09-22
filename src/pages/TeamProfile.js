@@ -30,20 +30,35 @@ function TeamProfile() {
 
   const { openModal } = useModals();
   const openUpdateTeamModal = () => {
-    openModal(modals.createTeamModal, { teamId: teamId, onsubmit: (value) => { console.log(value) } });
+    openModal(modals.createTeamModal, { teamId: teamId, onSubmit: (value) => { console.log(value) } });
   };
   const openUpdateTeamOwnerModal = () => {
-    openModal(modals.changeOwnerModal, { teamId: teamId, onsubmit: (value) => { console.log(value) } });
+    openModal(modals.changeOwnerModal, { teamId: teamId, onSubmit: (value) => { console.log(value) } });
   }
   const clickLeaveTeam = () => {
 
   }
   useEffect(() => {
     //TODO - 유저의 팀 어떻게 가져올지 ..
-    dispatch(teamAction.getTeamDetailDB(teamId));
-    const data = alluserteam.filter(team => team.id == teamId)
-    console.log(alluserteam)
-    setTeamData(data[0])
+    // dispatch(teamAction.getTeamDetailDB(teamId));
+    // const data = alluserteam.filter(team => team.id == teamId)
+    // console.log(alluserteam)
+    // setTeamData(data[0])
+    axios({
+      method: "get",
+      url: `/team/${teamId}`,
+    })
+      .then((response) => {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
+          setTeamData(response.data.data)
+        } else {
+          Swal.fire({
+            text: "팀 정보 조회 실패",
+            confirmButtonColor: "#E3344E",
+          });
+        }
+      })
+      .catch((err) => console.log(err));
     axios({
       method: "get",
       url: `/team/${teamId}/players`,
@@ -59,7 +74,7 @@ function TeamProfile() {
         }
       })
       .catch((err) => console.log(err));
-  }, [])
+  }, [teamId])
 
   return (
     <Fragment>

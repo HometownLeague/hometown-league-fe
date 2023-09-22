@@ -7,6 +7,8 @@ import { push } from "redux-first-history";
 import Swal from 'sweetalert2';
 
 function Main() {
+  const user = useSelector((state) => state.user.user);
+
   const location = useLocation();
 
   // 메인 페이지
@@ -36,7 +38,7 @@ function Main() {
         <EmptyList>
           <p>지역을 설정하고 팀을 찾아보세요!</p>
           <StlyedLink to="/userProfile">
-            지역 설정하러 가기 {'>'}
+            지역 설정하기 {'>'}
           </StlyedLink>
         </EmptyList>
       </Wrap>
@@ -46,9 +48,15 @@ function Main() {
         </TitleContainer>
         <EmptyList>
           <p>팀을 위한 선수를 찾으세요!</p>
-          <StlyedLink to="/">
-            로그인하러 가기 {'>'}
-          </StlyedLink>
+          {user ? (
+            <StlyedLink to="/">
+              영입 하러 가기 {'>'}
+            </StlyedLink>
+          ) : (
+            <StlyedLink to="/">
+              로그인하러 가기 {'>'}
+            </StlyedLink>
+          )}
         </EmptyList>
       </Wrap>
     </>

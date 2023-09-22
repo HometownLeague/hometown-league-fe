@@ -22,7 +22,7 @@ const customStyles = {
 const ChangeOwnerModal = ({onSubmit, onClose,teamId}) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const [owner, setOwner] =useState(null);
+  const [owner, setOwner] =useState("");
 
   const [teamPlayers, setTeamPlayers] = useState([])
 
@@ -33,17 +33,15 @@ const ChangeOwnerModal = ({onSubmit, onClose,teamId}) => {
     onClose();
   };
   //주장 변경API
-  const handleClickSubmit = useCallback(({newOwnerId})=>{
-    dispatch(teamAction.updateTeamOwnerDB(teamId,newOwnerId));
+  const handleClickSubmit =()=>{
+    dispatch(teamAction.updateTeamOwnerDB(teamId,owner));
     onSubmit();
-  },[]);
+    window.location.reload();
+  }
 
   useEffect(()=>{
-    axios({
-      method: "get",
-      url: `/team/${teamId}/players`,
-    })
-      .then((response) => {
+    axios.get(`/team/${teamId}/players`)
+    .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamPlayers(response.data.data.users)
         } else {

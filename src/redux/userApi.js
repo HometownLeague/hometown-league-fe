@@ -6,7 +6,6 @@ import { push, replace } from "redux-first-history";
 
 //import { API_URL } from '../lib/constants'
 
-axios.defaults.withCredentials = true; // withCredentials 전역 설정
 
 //Action Types
 const SET_USER = "SET_USER";
@@ -183,19 +182,21 @@ const deleteUserDB = (id) => {
 //서버에서 토큰을 받아 유효성 검증 후 유효하다면 유저 정보를 주어 자동 로그인
 const loginCheckDB = () => {
   return function (dispatch, getState) {
-    const token = localStorage.getItem("loginToken");
+    // const token = localStorage.getItem("loginToken");
+    // const user = localStorage.getItem("user")
+    // // TODO - 토큰 없음
+    // console.log("logintoken is", token);
+    // axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
+    // if (token === "null" || !user) {
+    //   localStorage.clear()
+    //   dispatch(loginCheck())
+    //   dispatch(replace("/"));
+    //   console.log(user)
+    // } else {
+    //   dispatch(setUser(user));
+    // }
     const user = localStorage.getItem("user")
-    // TODO - 토큰 없음
-    console.log("logintoken is", token);
-    axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
-    if (token === "null" || !user) {
-      localStorage.clear()
-      dispatch(loginCheck())
-      dispatch(replace("/"));
-      console.log(user)
-    } else {
-      dispatch(setUser(user));
-    }
+
   };
 };
 

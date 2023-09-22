@@ -22,7 +22,7 @@ import {modals} from '../modal/Modals';
 import { Text } from "../elements";
 import useInput from '../useInput';
 import { actionCreators as teamAction } from "../../redux/teamApi";
-import KakaoMap from '../KaKaoMap.jsx';
+import KakaoMap from '../KakaoMap.jsx';
 
 const layout = {
   labelCol: {
@@ -38,17 +38,12 @@ const tailLayout = {
     span: 16,
   },
 };
-function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
+function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId}) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const userTeam=useSelector((state) => state.team.userTeams);
   const [initialFormValue,setInitialFormValue]=useState({})
-  const [teamname, onChangeTeamName] = useInput("");
-  const [location,onChangeLocation]=useInput("");
-  const [searchLocation,onChangeSearchLocation]=useInput("");
-  const [time,SetTime]=useState("")
-  const [description, onChangeDescription] = useInput("");
-  const [teamLogo,onChangeTeamLogo]=useState("");
+  const [locationList,setLocationList]=useState([]);
 
   const { TextArea } = Input;
   const [form] = Form.useForm();
@@ -125,23 +120,46 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
   const { openModal } = useModals();
   //TODO - kakomap으로 받아온 장소 파싱해서 넣기
   const openSearchMapModal = () => {
-    openModal(modals.searchLocationModal, { onsubmit:(value)=>{console.log(value)}});
+    openModal(modals.searchLocationModal, {onSubmit:()=>{
+      const location=JSON.parse(localStorage.getItem("location"))
+      const isDuplicate = locationList.some((l) => {
+        return (
+          location.latitude === l.latitude &&
+          location.longitude === l.longitude
+        );
+      });
+      if(!isDuplicate&&location!==null){
+        setLocationList([...locationList, location]);
+        form.setFieldsValue({'locationList':[...locationList,location]})}
+      }
+    });
   };
   const handleClickCancel = () => {
     onClose();
   };
+
+//TODO - 장소 삭제
+  const removeField = (index) => {
+    // 필드를 삭제하면 해당 인덱스의 값을 배열에서 제거
+    const updatedList = [...locationList];
+    updatedList.splice(index, 1);
+    setLocationList(updatedList);
+    console.log(locationList)
+    // Form.List에도 반영
+    form.setFieldsValue({
+      locationList: locationList,
+    });
+  };
   // submit함수
   const handleClickSubmit =(values) => {
-    console.log(values)
     const formattedTime = values.time.map((item) => ({
       dayOfWeek: item.dayOfWeek,
       playTimeFrom: item.playTimeFrom.format('HHmm'),
       playTimeTo: item.playTimeTo.format('HHmm'),
     }));
-
     // 기본 데이터
     const basicData = {
-      name: values.teamname,
+      name: values.name,
       kind: 1,
       description: values.description,
       // ciPath:values. teamLogo
@@ -154,25 +172,26 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
 
     // 위치 데이터
     const locationData = {
-      location: values.location,
+      location: values.locationList,
     };
-    console.log(basicData.timeData)
-    if (isUpdate) {
-      // 업데이트 요청
-      dispatch(teamAction.updateTeamDB( basicData, timeData, locationData ));
-      onClose();
-    } else {
+   
+    // if (isUpdate) {
+    //   // 업데이트 요청
+    //   dispatch(teamAction.updateTeamDB( basicData, timeData, locationData ));
+    //   onClose();
+    // } else {
       // 새로운 팀 생성 요청
       const data = {
         ...basicData,
-        location: values.location,
+        location: values.locationList,
         time: formattedTime,
         owner: user.id,
       };
-        dispatch(teamAction.createTeamDB(data));
+      console.log(data)
+      dispatch(teamAction.createTeamDB(data));
       onClose();
-      window.location.reload();
-    }
+      //window.location.reload();
+    //}
     }
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
@@ -198,7 +217,7 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
               playTimeFrom:  dayjs(timeItem.playTimeFrom, 'HHmm'),
               playTimeTo:  dayjs(timeItem.playTimeTo, 'HHmm'),
             })),
-            location : data.location.map((locationItem) => ({
+            locationList : data.location.map((locationItem) => ({
               ...locationItem,
               // 추가적인 가공이 필요한 경우 여기에서 수행
             })),
@@ -210,25 +229,7 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
       });
     }else setInitialFormValue({});
   },[])
-  const initialValues = {
-    time: [
-      {
-        id: 1,
-        dayOfWeek: '1',
-        playTimeFrom: dayjs('1000', 'HHmm'),
-        playTimeTo: dayjs('1200', 'HHmm'),
-      },
-      {
-        id: 2,
-        dayOfWeek: '2',
-        playTimeFrom: dayjs('2000', 'HHmm'),
-        playTimeTo: dayjs('2200', 'HHmm'),
-      },
-    ],
-  };
-  const onFinish = (values) => {
-    console.log('Received values of form: ', values);
-  };
+
   return (
   <>
     <Form
@@ -244,14 +245,14 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
     //   maxWidth: 600,
     //   maxHeight:400
     // }}
-    onFinish={onFinish}
+    onFinish={handleClickSubmit}
     onFinishFailed={onFinishFailed}
     initialValues={initialFormValue}
 >
   {!isUpdate?<Text  size="20px" title bold>팀 정보 수정하기</Text>:<Text  size="20px" title bold>새로운 팀 만들기</Text>}
     <Form.Item label="팀 명"  name="name"
      rules={[{ validator: validateTeamname }]} validateTrigger= 'onBlur' hasFeedback>
-      <Input placeholder="팀 명" value={teamname} onChange={onChangeTeamName}  onBlur={onBlurTeamname}/>
+      <Input placeholder="팀 명" onBlur={onBlurTeamname}/>
     </Form.Item>
     <Form.Item label="종목"  name="kind" rules={[{ required: true }]}>
       <Select placeholder="종목">
@@ -348,14 +349,15 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
           )}
         </Form.List>
       </Form.Item>
+      {/* //FIXME - 지역 중복 제거, null값 제거 */}
       <Form.Item label="활동 지역">
-        <Form.List name='location' rules={[{  validator: async (_, tl) => {
+        <Form.List name='locationList' rules={[{  validator: async (_, tl) => {
         if (!tl|| tl.length < 1) {
           return Promise.reject(new Error('활동 시간대는 하나 이상 있어야합니다. '));
         }}}]} >
           {(fields, { add, remove },{errors}) => (
           <>
-            {fields.map(({ key, name, ...restField }) => (
+            {fields.map(({ key, name,...restField },index) => (
               <Space
                 key={key}
                 style={{
@@ -364,20 +366,19 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
                 align="baseline"
               >
                 <Form.Item  {...restField}
-                  name={[name,"spot"]}  rules={[
-                    {
-                      required: true,
-                      message: 'Missing location',
-                    },
-                  ]}>
+                  name={[name,"spot"]} >
+                    <Input  disabled="true"/>
                   </Form.Item>
-                  <MinusCircleOutlined onClick={() => remove(name)} />
+                  <MinusCircleOutlined onClick={() =>{
+                    remove(name)
+                    removeField(index)
+                  }}/>
               </Space>
             ))}
             <Form.Item>
               <Button type="dashed" onClick={() => {
-                add()
                 openSearchMapModal()
+                add()
               }} block icon={<PlusOutlined />}>
               활동 지역 추가하기
               </Button>
@@ -390,12 +391,12 @@ function TeamForm({isCreating,onsubmit,onClose,isUpdate,teamId}) {
 
     </Form.Item>
     <Form.Item label="팀 소개글" name="description">
-      <TextArea rows={4} placeholder='팀 소개글을 작성해주세요' value={description} onChange={onChangeDescription}/>
+      <TextArea rows={4} placeholder='팀 소개글을 작성해주세요'/>
     </Form.Item>
 
     {/* //FIXME - 사진 url 지정 */}
     <Form.Item label="팀 로고" valuePropName="fileList" getValueFromEvent={normFile}>
-    <Upload name="logo" action="/upload.do" listType="picture" onChange={onChangeTeamLogo}>
+    <Upload name="logo" action="/upload.do" listType="picture" >
       <Button icon={<UploadOutlined />}>Click to upload</Button>
       </Upload>
     </Form.Item>

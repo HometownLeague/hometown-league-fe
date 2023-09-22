@@ -163,7 +163,7 @@ const deleteTeamDB = (id) => {
               case process.env.REACT_APP_API_RES_CODE_SUCESS:
                 Swal.fire("삭제 완료!", "팀이 삭제되었습니다.", "success");
                 dispatch(deleteTeam(id));
-                history.replace("/teamManagement");
+                dispatch(replace("/teamManagement"));
                 break;
               default:
                 Swal.fire({
@@ -192,7 +192,7 @@ const updateTeamDB = (bData, tData, lData) => {
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            history.push("/");
+            dispatch(push("/"));
             break;
         }
       })
@@ -209,7 +209,7 @@ const updateTeamDB = (bData, tData, lData) => {
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            history.push("/");
+            dispatch(push("/"));
             break;
         }
       })
@@ -230,7 +230,7 @@ const updateTeamDB = (bData, tData, lData) => {
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            history.push("/");
+            dispatch(push("/"));
             break;
         }
       })
@@ -256,7 +256,7 @@ const addMemberDB = (teamId, joinUserId) => {
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            history.push("/");
+            dispatch(push("/"));
             break;
         }
       })
@@ -300,6 +300,7 @@ const leaveTeamDB = (teamId) => {
 };
 const updateTeamOwnerDB = (teamId, newOwnerId) => {
   return function (dispatch, { history }) {
+    console.log(teamId, newOwnerId)
     axios
       .patch(`/team/${teamId}/owner`, {
         userId: newOwnerId
