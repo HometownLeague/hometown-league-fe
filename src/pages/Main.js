@@ -1,40 +1,32 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link, useLocation } from "react-router-dom";
+import { push } from "redux-first-history";
 
 import Swal from 'sweetalert2';
 
-function Main(props) {
+function Main() {
+  const user = useSelector((state) => state.user.user);
+
+  const location = useLocation();
+
   // 메인 페이지
   const dispatch = useDispatch();
-  const { history } = props;
+
   const is_user = localStorage.getItem("user") ? true : false;
 
-  // 인기 취미 추천 리스트
+  // 인기 추천 리스트
   const popularList = useSelector((state) => state.post?.popular_list);
   // 온라인 추천 리스트
   const onlineList = useSelector((state) => state.post?.online_list);
-  // 오프라인 추천 리스트
+
 
   const [isOpen, setOpen] = useState(false);
   const handleClick = () => {
     setOpen(true);
   }
   useEffect(() => {
-
-    // if (props.location.error) {
-    //   setTimeout(() => {
-    //     Swal.fire({
-    //       text: `${props.location.error}에 이미 가입된 이메일입니다.\n ${props.location.error}로 다시 시도해 주세요`,
-    //       confirmButtonColor: '#7F58EC',
-    //       confirmButtonText: '확인',
-    //     });
-    //     props.history.replace({
-    //       pathname: props.location.pathname,
-    //       state: {},
-    //     });
-    //   }, 500);
-    // }
   }, []);
 
   return (
@@ -45,13 +37,9 @@ function Main(props) {
         </TitleContainer>
         <EmptyList>
           <p>지역을 설정하고 팀을 찾아보세요!</p>
-          <button
-            onClick={() => {
-              history.push('/userdetail');
-            }}
-          >
-            지역 설정하러 가기 {'>'}
-          </button>
+          <StlyedLink to="/userProfile">
+            지역 설정하기 {'>'}
+          </StlyedLink>
         </EmptyList>
       </Wrap>
       <Wrap>
@@ -60,13 +48,15 @@ function Main(props) {
         </TitleContainer>
         <EmptyList>
           <p>팀을 위한 선수를 찾으세요!</p>
-          <button
-            onClick={() => {
-              history.push('/login');
-            }}
-          >
-            로그인하러 가기 {'>'}
-          </button>
+          {user ? (
+            <StlyedLink to="/">
+              영입 하러 가기 {'>'}
+            </StlyedLink>
+          ) : (
+            <StlyedLink to="/">
+              로그인하러 가기 {'>'}
+            </StlyedLink>
+          )}
         </EmptyList>
       </Wrap>
     </>
@@ -124,24 +114,6 @@ const EmptyList = styled.div`
     letter-spacing: -0.54px;
     color: #666;
   }
-  & button {
-    max-width: 165px;
-    height: 28px;
-    font-size: 15px;
-    color: #ffffff;
-    background: transparent linear-gradient(124deg, #7f58ec 0%, #5c5ce3 100%) 0%
-      0% no-repeat padding-box;
-    border-radius: 14px;
-    border: none;
-    padding: 3px 17px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    &:hover {
-      opacity: 0.9;
-    }
-  }
   @media only screen and (max-width: 414px) {
     height: 109px;
     & p {
@@ -152,5 +124,21 @@ const EmptyList = styled.div`
     }
   }
 `;
-
+const StlyedLink = styled(Link)`
+  max-width: 165px;
+  height: 28px;
+  font-size: 15px;
+  color: #ffffff;
+  background: transparent linear-gradient(124deg, #7f58ec 0%, #5c5ce3 100%) 0%
+    0% no-repeat padding-box;
+  border-radius: 14px;
+  border: none;
+  padding: 3px 17px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  &:hover {
+    opacity: 0.9;
+}`
 export default Main;

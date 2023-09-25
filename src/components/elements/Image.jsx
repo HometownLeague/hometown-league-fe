@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 const Image = (props)=>{
-    const { contain, src, width, height, margin } = props;
+    const { contain, src, width, height, margin ,radius} = props;
 
     const styles ={
         src: src,
@@ -10,7 +10,7 @@ const Image = (props)=>{
         height:height,
         margin: margin,
         contain:contain,
-       
+        radius:radius
     }
     return (
         <React.Fragment>
@@ -25,6 +25,7 @@ Image.defaultProps = {
     width: "100%",
     margin: "0",
     contain:false,
+    radius:"0%"
     };
 
     const ImageDefault = styled.div`
@@ -37,6 +38,8 @@ Image.defaultProps = {
     box-sizing:border-box;
     background-size: ${(props) => props.contain? "contain":"cover"};
     margin:${(props) => props.margin};
+    border-radius:${(props) => props.radius};
+    background-color: #ffff;
     `
 
 export default Image;
