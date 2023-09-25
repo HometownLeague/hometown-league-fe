@@ -58,8 +58,8 @@ Grid.defaultProps = {
   chidren: null,
   is_flex: false,
   width: "100%",
-  padding: false,
-  margin: false,
+  padding:0,
+  margin: 0,
   bg: false,
   _onClick: () => {},
 };

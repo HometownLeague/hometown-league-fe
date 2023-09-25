@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 
 import { actionCreators as userAction } from "../../redux/userApi";
 import useInput from '../useInput';
+import { history } from '../../redux/configStore';
 
 const customStyles = {
   content: {
@@ -26,6 +27,10 @@ const LoginModal = ({onSubmit, onClose }) => {
 
     const handleClickCancel = () => {
       onClose();
+      if (window.location.pathname !== "/join"
+      ) {
+        history.replace("/")
+      }
     };
 
     const emailCheck = (email) =>{

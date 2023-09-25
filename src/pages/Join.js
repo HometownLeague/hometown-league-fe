@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from "styled-components";
 import axios from "axios";
 import { useDispatch } from "react-redux";
@@ -7,11 +7,12 @@ import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 
 import { actionCreators as userAction } from "../redux/userApi";
-// import { API_URL } from '../lib/constants'\
+
 import useInput from '../components/useInput';
 
 import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
+
 
 const StyledForm = styled.div`
   max-width:100%;
@@ -27,11 +28,15 @@ const StyledForm = styled.div`
 `;
 
 const Join = () => {
+  const dispatch = useDispatch();
+
   const [nickname, onChangeNickname] = useInput('');
   const [email, onChangeEmail] = useInput('');
   const [password, onChangePassword] = useInput('');
   const [passwordCheck, onChangePasswordCheck] = useInput('');
   const [desc, onChangeDesc] = useInput('');
+
+  const [form] = Form.useForm();
 
   //login modal 
   const { openModal } = useModals();
@@ -39,20 +44,10 @@ const Join = () => {
     openModal(modals.loginModal, { onsubmit: (value) => { console.log(value) } });
   };
 
-  // antd form control
-  const [form] = Form.useForm();
-  const dispatch = useDispatch();
-
   // 회원가입 요청
+  // 버튼을 누르면 validation이 완료된 후에 실행되서 각 필드를 다시 확인안해도됨
   const onsubmitForm = useCallback(({ email, nickname, password, desc }) => {
-    const data = {
-      id: email,
-      nickname: nickname,
-      password: password,
-      description: desc,
-    }
-    dispatch(userAction.registerDB(data));
-
+    dispatch(userAction.registerDB(email, password, nickname, desc));
   }, []);
 
   // nickname 유효성 검사
@@ -64,6 +59,7 @@ const Join = () => {
     if (/\s/.test(value)) {
       return Promise.reject(new Error('닉네임은 공백을 포함 할 수 없습니다.'));
     }
+
     let nicknameLength = 0;
     for (let i = 0; i < value.length; i += 1) {
       const char = value.charAt(i);
@@ -83,29 +79,20 @@ const Join = () => {
     }
     return Promise.resolve();
   }, []);
-  //FIXME - 중복 검사 안됌. 고치기
+
   // nickname 중복 검사
-  const onCheckNickname = useCallback(() => {
+  const onBlurNickname = useCallback(() => {
     if (form.getFieldError('nickname').length === 0 && form.getFieldValue('nickname')) {
-      axios({
-        method: "get",
-        url: `/user/is-duplicate?type=nickname&value=${form.getFieldValue('nickname')}`,
-      })
-        .then((response) => {
-          console.log(response)
-          if (response.data === "N") {
-            form.setFields([{
-              name: 'nickname',
-              message: ['사용 가능한 닉네임입니다.']
-            }]);
-          } else {
+      axios.get(`/user/is-duplicate?type=nickname&value=${form.getFieldValue('nickname')}`)
+        .catch((e) => {
+          console.error(e);
+        }).then((response) => {
+          if (response.data.data === 'Y') {
             form.setFields([{
               name: 'nickname',
               errors: ['사용중인 닉네임 입니다.'],
             }]);
           }
-        }).catch((e) => {
-          console.error(e);
         });
     }
   }, []);
@@ -123,28 +110,18 @@ const Join = () => {
   }, []);
 
   // email 중복 검사
-  const onCheckEmail = useCallback(() => {
+  const onBlurEmail = useCallback(() => {
     if (form.getFieldError('email').length === 0 && form.getFieldValue('email')) {
-      axios({
-        method: "get",
-        url: `/user/is-duplicate?type=id&value=${form.getFieldValue('email')}`,
-
-      })
-        .then((response) => {
-          console.log(response)
-          if (response.data === "N") {
+      axios.get(`/user/is-duplicate?type=id&value=${form.getFieldValue('email')}`)
+        .catch((e) => {
+          console.error(e);
+        }).then((response) => {
+          if (response.data.data === 'Y') {
             form.setFields([{
               name: 'email',
-              message: ['사용 가능한 이메일입니다.']
-            }]);
-          } else {
-            form.setFields([{
-              name: 'email',
-              errors: ['이미 가입된 이메일 입니다.'],
+              errors: ['사용중인 이메일 입니다.'],
             }]);
           }
-        }).catch((e) => {
-          console.error(e);
         });
     }
   }, []);
@@ -180,44 +157,40 @@ const Join = () => {
               name="nickname"
               hasFeedback
               rules={[{ validator: validateNickname }]}
-              direction='horizontal'
             >
-              <Space.Compact>
-                <Input
-                  placeholder="닉네임"
-                  value={nickname}
-                  onChange={onChangeNickname}
-                  allowClear
-                />
-                <Button onClick={onCheckNickname}>중복 체크</Button>
-              </Space.Compact>
-
+              <Input
+                placeholder="닉네임"
+                value={nickname}
+                onChange={onChangeNickname}
+                onBlur={onBlurNickname}
+                allowClear
+              />
             </Form.Item>
             <Form.Item
               name="desc"
+              style={{ marginBottom: 0 }}
+              rules={[{ required: true, message: '소개글은 필수 항목입니다.' }]}
             >
               <Input.TextArea placeholder="자신의 소개글을 적어주세요"
                 value={desc}
                 onChange={onChangeDesc}
                 maxLength={50} />
             </Form.Item>
+
             <Form.Item
               style={{ marginBottom: 0 }}
               name="email"
               hasFeedback
               rules={[{ validator: validateEmail }]}
             >
-              <Space.Compact>
-                <Input
-                  placeholder="이메일"
-                  type="email"
-                  value={email}
-                  onChange={onChangeEmail}
-                  allowClear
-                />
-                <Button onClick={onCheckEmail}>중복 체크</Button>
-              </Space.Compact>
-
+              <Input
+                placeholder="이메일"
+                type="email"
+                value={email}
+                onChange={onChangeEmail}
+                onBlur={onBlurEmail}
+                allowClear
+              />
             </Form.Item>
             <Form.Item
               style={{ marginBottom: 0 }}
