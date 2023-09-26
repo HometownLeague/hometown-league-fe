@@ -27,7 +27,7 @@ function App() {
         <Route path="/join" element={<Join />} />
         <Route path="/teamManagement" element={<TeamManagement />} />
         <Route path="/team/profile/:id" element={<TeamProfile />} />
-        <Route path="/teamMatching" element={<TeamMatching />} />
+        <Route path="/matching" element={<TeamMatching />} />
       </Routes>
     </>
   );

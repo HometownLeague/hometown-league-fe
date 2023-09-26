@@ -198,7 +198,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId}) {
   };
   useEffect(()=>{
     //TODO - update일때 폼 초기값 설정
-    if(isUpdate){
+    if(teamId!==undefined){
       axios({
         method: "get",
         url: `/team/${teamId}`,
@@ -383,7 +383,6 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId}) {
               활동 지역 추가하기
               </Button>
               <Form.ErrorList errors={errors} />
-
             </Form.Item>
           </>
         )}

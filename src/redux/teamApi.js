@@ -288,7 +288,7 @@ const leaveTeamDB = (teamId) => {
               default:
                 Swal.fire({
                   text: response.data.responseCode.message,
-                  confirmButtonColor: "#E3344E",
+                  confirmButtonColor: "#FFCC70",
                 });
                 break;
             }

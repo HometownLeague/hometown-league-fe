@@ -1,8 +1,10 @@
 import React from 'react'
 
-function TeamMatching() {
+function TeamMatching({ teamId }) {
+
   return (
-    <div>TeamMatching</div>
+    <>
+    </>
   )
 }
 

@@ -44,7 +44,7 @@ const registerDB = (id, password, nickname, desc) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           Swal.fire({
             text: "가입이 완료되었습니다!",
-            confirmButtonColor: "#E3344E",
+            confirmButtonColor: "#FFCC70",
           }).then((responseult) => {
             if (responseult.isConfirmed) {
               dispatch(push("/"))
@@ -84,22 +84,22 @@ const loginDB = (id, password) => {
         if (response.data.responseCode.code === "0000") {
           dispatch(setUser(response.data.data));
           //TODO - 로그인 토큰 설정. 쿠키 없음 항상
-          console.log("response.headers['set-cookie']", response.headers['set-cookie'])
-          const cookies = response.headers['set-cookie'];
-          let accessToken = null;
-          if (cookies && cookies.length > 0) {
-            cookies.forEach(cookie => {
-              if (cookie.startsWith('SESSION=')) {
-                accessToken = cookie.split(';')[0].replace('SESSION=', '');
-              }
-            });
-          }
-          console.log("accessToken", accessToken)
+          // console.log("response.headers['set-cookie']", response.headers['set-cookie'])
+          // const cookies = response.headers['set-cookie'];
+          // let accessToken = null;
+          // if (cookies && cookies.length > 0) {
+          //   cookies.forEach(cookie => {
+          //     if (cookie.startsWith('SESSION=')) {
+          //       accessToken = cookie.split(';')[0].replace('SESSION=', '');
+          //     }
+          //   });
+          // }
+          //console.log("accessToken", accessToken)
           localStorage.setItem("user", JSON.stringify(response.data.data))
-          localStorage.setItem("loginToken", accessToken)
-          axios.defaults.headers.common[
-            'authorization'
-          ] = `Bearer ${accessToken}`;
+          //localStorage.setItem("loginToken", accessToken)
+          // axios.defaults.headers.common[s
+          //   'authorization'
+          // ] = `Bearer ${accessToken}`;
           if (window.location.pathname === "/join") {
             dispatch(replace("/"))
           }
@@ -118,17 +118,27 @@ const loginDB = (id, password) => {
 
 const logoutDB = () => {
   return function (dispatch, { history }) {
-    localStorage.removeItem("user");
-    localStorage.removeItem("loginToken");
-    dispatch(logOut());
-    axios.defaults.headers.common["authorization"] = null;
-    delete axios.defaults.headers.common["authorization"];
-    Swal.fire({
-      text: '로그아웃 되었습니다.',
-      confirmButtonColor: '#7F58EC',
-      confirmButtonText: '확인',
-    });
-    dispatch(replace("/"));
+    axios({
+      method: "delete",
+      url: `/user/logout`,
+    })
+      .then((response) => {
+        localStorage.removeItem("user");
+        localStorage.removeItem("loginToken");
+        dispatch(logOut);
+        axios.defaults.headers.common["authorization"] = null;
+        delete axios.defaults.headers.common["authorization"];
+        Swal.fire({
+          text: '로그아웃 되었습니다.',
+          confirmButtonColor: '#FFCC70',
+          confirmButtonText: '확인',
+        });
+        dispatch(replace("/"));
+      })
+      .catch((error) => {
+        console.log(error.responseponse);
+        dispatch(replace("/"));
+      });
   };
 };
 const getUserDB = (id) => {
@@ -151,7 +161,7 @@ const getUserDB = (id) => {
         console.log(err, 'error');
         Swal.fire({
           text: err.error,
-          confirmButtonColor: '#7F58EC',
+          confirmButtonColor: '#E3344E',
           confirmButtonText: '확인',
         });
         return;

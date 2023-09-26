@@ -15,31 +15,39 @@ function KakaoMap({searchplace,setLocation}) {
     let legalDongCode =''
     const content=place.place_name;
     //FIXME -  legalcode 네트워크 없음
-    axios.get(`https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lng}&y=${lat}`, {
-      headers: { Authorization:  "KakaoAK "+process.env.REACT_APP_KAKAO_REST_API_KEY },
-  })
+    axios({
+      method: "get",
+      url: `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lng}&y=${lat}`,
+      headers:{authorization:  "KakaoAK "+process.env.REACT_APP_KAKAO_REST_API_KEY },
+    })
     .then(response => {
       const data = response.data;
-      console.log(data)
       if (data.documents && data.documents.length > 0) {
         const region = data.documents[0];
-        legalDongCode = region.region_3depth_code;
-        console.log('법정동 코드:', legalDongCode);
+        legalDongCode = region.code;
+        setLocation({
+        spot:content,
+        latitude:lat,
+        longitude:lng,
+        legalCode:legalDongCode,
+        jibunAddress:roadAddress,
+        roadAddress:address
+        })
       } else {
         console.error('법정동 정보를 찾을 수 없습니다.');
+        setLocation({
+        spot:content,
+        latitude:lat,
+        longitude:lng,
+        legalCode:"noCode",
+        jibunAddress:roadAddress,
+        roadAddress:address
+        })
       }
     })
     .catch((error) => {
       console.error('API 호출 중 오류 발생:', error);
     });
-    setLocation({
-    name:content,
-    latitude:lat,
-    longitude:lng,
-    legalCode:legalDongCode,
-    jibunAddress:roadAddress,
-    roadAddress:address
-    })
   }
   // 선택한 마커 색상 변경을 위한 함수
   const getDefaultMarkerImage = () =>
