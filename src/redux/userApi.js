@@ -84,7 +84,6 @@ const loginDB = (id, password) => {
         if (response.data.responseCode.code === "0000") {
           dispatch(setUser(response.data.data));
           //TODO - 로그인 토큰 설정. 쿠키 없음 항상
-          // console.log("response.headers['set-cookie']", response.headers['set-cookie'])
           // const cookies = response.headers['set-cookie'];
           // let accessToken = null;
           // if (cookies && cookies.length > 0) {
@@ -94,10 +93,10 @@ const loginDB = (id, password) => {
           //     }
           //   });
           // }
-          //console.log("accessToken", accessToken)
+          // console.log("accessToken", accessToken)
           localStorage.setItem("user", JSON.stringify(response.data.data))
           //localStorage.setItem("loginToken", accessToken)
-          // axios.defaults.headers.common[s
+          // axios.defaults.headers.common[
           //   'authorization'
           // ] = `Bearer ${accessToken}`;
           if (window.location.pathname === "/join") {
@@ -123,22 +122,20 @@ const logoutDB = () => {
       url: `/user/logout`,
     })
       .then((response) => {
-        localStorage.removeItem("user");
-        localStorage.removeItem("loginToken");
-        dispatch(logOut);
-        axios.defaults.headers.common["authorization"] = null;
-        delete axios.defaults.headers.common["authorization"];
+        // axios.defaults.headers.common["authorization"] = null;
+        // delete axios.defaults.headers.common["authorization"];
         Swal.fire({
           text: '로그아웃 되었습니다.',
           confirmButtonColor: '#FFCC70',
           confirmButtonText: '확인',
         });
-        dispatch(replace("/"));
       })
       .catch((error) => {
         console.log(error.responseponse);
-        dispatch(replace("/"));
       });
+    localStorage.clear()
+    dispatch(logOut())
+    dispatch(replace("/"));
   };
 };
 const getUserDB = (id) => {
@@ -180,7 +177,7 @@ const deleteUserDB = (id) => {
       })
       .catch((error) => {
         console.log(error.responseponse);
-        dispatch.logOut();
+        dispatch(logOut());
         dispatch(replace("/"));
       });
   };
@@ -192,21 +189,27 @@ const deleteUserDB = (id) => {
 //서버에서 토큰을 받아 유효성 검증 후 유효하다면 유저 정보를 주어 자동 로그인
 const loginCheckDB = () => {
   return function (dispatch, getState) {
-    // const token = localStorage.getItem("loginToken");
-    // const user = localStorage.getItem("user")
-    // // TODO - 토큰 없음
-    // console.log("logintoken is", token);
-    // axios.defaults.headers.common["authorization"] = `Bearer ${token}`;
-    // if (token === "null" || !user) {
-    //   localStorage.clear()
-    //   dispatch(loginCheck())
-    //   dispatch(replace("/"));
-    //   console.log(user)
-    // } else {
-    //   dispatch(setUser(user));
-    // }
-    const user = localStorage.getItem("user")
-
+    const _user = localStorage.getItem("user")
+    if (_user) {
+      axios({
+        method: "get",
+        url: `/user/team`,
+      })
+        .then((response) => {
+          if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
+            localStorage.clear()
+            dispatch(logOut())
+            dispatch(replace("/"));
+          }
+        })
+        .catch((err) => {
+          console.log(err, 'error');
+          localStorage.clear()
+          dispatch(logOut())
+          dispatch(replace("/"));
+          return;
+        });
+    }
   };
 };
 
@@ -229,12 +232,6 @@ export default handleActions(
         draft.is_login = true;
 
       }),
-    [LOGIN_CHECK]: (state, action) =>
-      produce(state, (draft) => {
-        draft.user = null;
-        draft.is_login = false;
-      }),
-
   },
   initialState
 );

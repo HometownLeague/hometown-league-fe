@@ -1,22 +1,25 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams } from 'react-router-dom';
 
 import { Link } from 'react-router-dom';
-import { actionCreators as teamAction } from "../redux/teamApi";
 import { history } from "../redux/configStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { Text, Grid, Image, Button } from "../components/elements";
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { Layout } from 'antd';
+import dayjs from "dayjs";
+
+import { actionCreators as teamAction } from "../redux/teamApi";
+import { actionCreators as matchAction } from "../redux/matchApi";
 import { Playerimg, Trophy } from "../images";
-import { Layout, Space } from 'antd';
 import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
-const { Header, Footer, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 function TeamProfile() {
   const params = useParams()
@@ -27,18 +30,34 @@ function TeamProfile() {
   const user = useSelector((state) => state.user.user);
   const alluserteam = useSelector((state) => state.team.userTeams);
   // const isLoading = useSelector((state) => state.teamData.isLoading);
+  const matchingList = useSelector((state) => state.matching.matchingList);
 
   const { openModal } = useModals();
   const openUpdateTeamModal = () => {
-    openModal(modals.createTeamModal, { teamId: teamId, onSubmit: (value) => { console.log(value) } });
+    const data = {
+      name: teamData.name,
+      description: teamData.description,
+      kind: teamData.kind,
+      location: teamData.location,
+      time: teamData.time.map((item) => ({
+        ...item,
+        playTimeFrom: dayjs(item.playTimeFrom, 'HHmm'),
+        playTimeTo: dayjs(item.playTimeTo, 'HHmm')
+      }))
+    }
+    openModal(modals.createTeamModal, { teamId: teamId, teamData: data, onSubmit: (value) => { console.log(value) } });
   };
   const openUpdateTeamOwnerModal = () => {
     openModal(modals.changeOwnerModal, { teamId: teamId, onSubmit: (value) => { console.log(value) } });
   }
-  const clickLeaveTeam = () => {
-
+  const onclickLeaveTeam = () => {
+    dispatch(teamAction.leaveTeamDB())
+  }
+  const onClickMatching = () => {
+    dispatch(matchAction.requestMatchingDB(teamId))
   }
   useEffect(() => {
+    console.log(matchingList)
     //TODO - 유저의 팀 어떻게 가져올지 ..
     // dispatch(teamAction.getTeamDetailDB(teamId));
     // const data = alluserteam.filter(team => team.id == teamId)
@@ -77,7 +96,7 @@ function TeamProfile() {
   }, [teamId])
 
   return (
-    <Fragment>
+    <>
       {/* 점수, 팀 설명 header */}
       <ContainerBox>
         {/* 왼쪽 바 */}
@@ -95,7 +114,7 @@ function TeamProfile() {
               <Text size="20px" color='black' bold title>
                 {teamData.name}
               </Text>
-              {teamData.ownerId == user.id && (
+              {user && teamData.ownerId == user.id && (
                 <FontAwesomeIcon icon={faPenToSquare} size='xl' color='black' onClick={openUpdateTeamModal} />
               )}
             </TeamNameBox>
@@ -117,13 +136,17 @@ function TeamProfile() {
                     margin="0 0 10px 0"
                     color="#ffffff"
                     _onClick={openUpdateTeamOwnerModal}> 주장 변경 </Button>
+                  {matchingList.some(match => match.teamId === teamId) && (<></>)}
                   <Button radius="5px 5px 5px 5px"
                     size="20px"
                     padding=" 3.6px 0"
                     margin="0 0 10px 0"
                     color="#ffffff"
-                    _onClick={() => {
-                    }}> 매칭 요청 </Button>
+                    _onClick={onClickMatching}>
+                    매칭 요청
+                  </Button>
+
+
                 </ButtonBox>
               ) : (
                 <Button radius="5px 5px 5px 5px"
@@ -131,9 +154,7 @@ function TeamProfile() {
                   padding=" 3.6px 0"
                   margin="0 0 10px 0"
                   color="#ffffff"
-                  _onClick={() => {
-                    dispatch(teamAction.leaveTeamDB())
-                  }}> 탈퇴하기 </Button>
+                  _onClick={onclickLeaveTeam}> 탈퇴하기 </Button>
               )}
 
             </ButtonBox>
@@ -190,7 +211,7 @@ function TeamProfile() {
 
       </ContainerBox>
 
-    </Fragment>
+    </>
   );
 }
 

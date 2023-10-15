@@ -31,7 +31,7 @@ const createTeam = createAction(CREATE_TEAM, (team) => ({ team }));
 const deleteTeam = createAction(DELETE_TEAM, (team) => ({ team }));
 const addMember = createAction(ADD_MEMBER, (team) => ({ team }));
 const updateTeam = createAction(UPDATE_TEAM, (team) => ({ team }));
-const updateTeamOwner = createAction(UPDATE_TEAM_OWNER, (team) => ({ team }));
+const updateTeamOwner = createAction(UPDATE_TEAM_OWNER, (teamId, newOwnerId) => ({ teamId, newOwnerId }));
 const leaveTeam = createAction(LEAVE_TEAM, (team) => ({ team }));
 const loading = createAction(LOADING, (isLoading) => ({ isLoading }));
 
@@ -129,7 +129,7 @@ const createTeamDB = (teamInfo) => {
             dispatch(createTeam(teamInfo));
             Swal.fire({
               text: "새로운 팀을 만들었습니다!",
-              confirmButtonColor: "rgb(118, 118, 118)",
+              confirmButtonColor: "#FFCC70",
             })
             break;
           default:
@@ -153,7 +153,7 @@ const deleteTeamDB = (id) => {
       confirmButtonColor: "#E2344E",
       confirmButtonText: "삭제",
       cancelButtonText: "취소",
-      cancelButtonColor: "rgb(118, 118, 118)",
+      cancelButtonColor: "#FFCC70",
     }).then((result) => {
       if (result.isConfirmed) {
         axios
@@ -222,7 +222,7 @@ const updateTeamDB = (bData, tData, lData) => {
             dispatch(updateTeam(response.data.data));
             Swal.fire({
               text: "새로운 팀을 만들었습니다!",
-              confirmButtonColor: "rgb(118, 118, 118)",
+              confirmButtonColor: "#FFCC70",
             })
             break;
           default:

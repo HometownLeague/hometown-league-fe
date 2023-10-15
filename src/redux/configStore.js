@@ -1,7 +1,7 @@
 import { combineReducers, applyMiddleware, compose } from "redux";
 import User from "./userApi";
 import Team from "./teamApi";
-
+import Matching from './matchApi'
 import { configureStore } from "@reduxjs/toolkit";
 import { createReduxHistoryContext } from "redux-first-history";
 import { createBrowserHistory } from "history";
@@ -36,6 +36,7 @@ if (env === "development") {
 const reducers = combineReducers({
   user: User,
   team: Team,
+  matching: Matching,
   router: routerReducer
 });
 

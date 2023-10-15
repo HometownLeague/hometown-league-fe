@@ -3,13 +3,11 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import dayjs from "dayjs";
 
-import { SmileOutlined, UserOutlined } from '@ant-design/icons';
 import styled from "styled-components";
 import { useDispatch,useSelector } from "react-redux";
 import { CloseOutlined ,UploadOutlined,MinusCircleOutlined,PlusOutlined} from '@ant-design/icons';
 import {
   Button,
-  Cascader,
   Form,
   Input,
   Select,
@@ -20,9 +18,7 @@ import {
 import useModals from '../modal/useModal';
 import {modals} from '../modal/Modals';
 import { Text } from "../elements";
-import useInput from '../useInput';
 import { actionCreators as teamAction } from "../../redux/teamApi";
-import KakaoMap from '../KakaoMap.jsx';
 
 const layout = {
   labelCol: {
@@ -38,12 +34,13 @@ const tailLayout = {
     span: 16,
   },
 };
-function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId}) {
+function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const userTeam=useSelector((state) => state.team.userTeams);
-  const [initialFormValue,setInitialFormValue]=useState({})
+  const [initialFormValue,setInitialFormValue]=useState(teamData?teamData:{})
   const [locationList,setLocationList]=useState([]);
+  const alluserteam = useSelector((state) => state.team.userTeams);
 
   const { TextArea } = Input;
   const [form] = Form.useForm();
@@ -175,11 +172,11 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId}) {
       location: values.locationList,
     };
    
-    // if (isUpdate) {
-    //   // 업데이트 요청
-    //   dispatch(teamAction.updateTeamDB( basicData, timeData, locationData ));
-    //   onClose();
-    // } else {
+    if (isUpdate) {
+      // 업데이트 요청
+      dispatch(teamAction.updateTeamDB( basicData, timeData, locationData ));
+      onClose();
+    } else {
       // 새로운 팀 생성 요청
       const data = {
         ...basicData,
@@ -191,45 +188,12 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId}) {
       dispatch(teamAction.createTeamDB(data));
       onClose();
       //window.location.reload();
-    //}
+    }
     }
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
-  useEffect(()=>{
-    //TODO - update일때 폼 초기값 설정
-    if(teamId!==undefined){
-      axios({
-        method: "get",
-        url: `/team/${teamId}`,
-      })
-      .then((response) => {
-        if (response.data.responseCode.code=== process.env.REACT_APP_API_RES_CODE_SUCESS) {
-          const data=response.data.data;
-          
-          setInitialFormValue({
-            name : data.name,
-            ciPath : data.ciPath,
-            description : data.description,
-            kind : 1,
-            time : data.time.map((timeItem) => ({
-              ...timeItem,
-              playTimeFrom:  dayjs(timeItem.playTimeFrom, 'HHmm'),
-              playTimeTo:  dayjs(timeItem.playTimeTo, 'HHmm'),
-            })),
-            locationList : data.location.map((locationItem) => ({
-              ...locationItem,
-              // 추가적인 가공이 필요한 경우 여기에서 수행
-            })),
-          });
-          console.log("initialForm",initialFormValue)
-        }
-      }).catch((e) => {
-        console.error(e);
-      });
-    }else setInitialFormValue({});
-  },[])
-
+  useEffect(()=>{console.log(teamData)},[])
   return (
   <>
     <Form

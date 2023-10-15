@@ -6,12 +6,14 @@ import { Button, Text, Image, Grid } from "../components/elements";
 import { history } from "../redux/configStore";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPersonRunning, faPeopleGroup, faPlus } from '@fortawesome/free-solid-svg-icons';
+
 import { actionCreators as teamActions } from "../redux/teamApi";
 import { modals } from '../components/modal/Modals';
 import useModals from '../components/modal/useModal';
 import CreateTeamModal from '../components/modal/CreateTeamModal';
 import { Link } from 'react-router-dom';
 import TeamForm from '../components/forms/TeamForm';
+import CardViewContent from '../components/CardViewContent';
 
 function TeamManagement() {
   const dispatch = useDispatch();
@@ -66,24 +68,9 @@ function TeamManagement() {
 
           {user && teamList && teamList.map((team, idx) => {
             return (
-              <GroupBox key={team.id}>
-                <Link to={`/team/profile/${team.id}`}>
-                  {team.logo ? <>
-                    <Image src={team.logo}
-                      width="50px"
-                      height="45px"
-                      contain />
-                  </> :
-                    <>
-                      <FontAwesomeIcon icon={faPersonRunning} />
-                    </>}
-                  <TextBox>
-                    <Text size="15px" $title>
-                      {team.name}
-                    </Text>
-                  </TextBox>
-                </Link>
-              </GroupBox>
+              <Link key={team.id} to={`/team/profile/${team.id}`}>
+                <CardViewContent team={team} isMatchingView={false} />
+              </Link>
             );
           })}
         </ListBox>
@@ -184,59 +171,6 @@ const ListBox = styled.div`
   position: relative;
 `;
 
-const SlideBox = styled.div`
-  background-color: rgb(255, 255, 255, 0.4);
-  border-radius: 10px;
-  box-shadow: 0px 1px 8px #dfdbdb;
-  text-align: center;
-  padding: 20px;
-  box-sizing: border-box;
-  min-height: 170px;
-  max-height: 170px;
-  font-size: 17px;
-  margin-bottom: 30px;
-  position: relative;
-  @media all and (min-width:768px) and (max-width:1023px)
- {width: 80%;
- }
- @media all and (max-width:767px)
- {width: 80%;
- height:190px;
- margin-bottom: 10px;
- }
-  & :last-child {
-    margin: 0px;
-  }
-`;
-const GroupBox = styled.div`
-  max-width: 220px;
-  min-width: 220px;
-  overflow: hidden;
-  background-color: rgb(255, 255, 255, 0.4);
-  border-radius: 10px;
-  box-shadow: 0px 1px 8px #dfdbdb;
-  text-align: center;
-  align-items: center;
-  min-height: 130px;
-  max-height: 130px;
-  padding: 10px 20px;
-  box-sizing: border-box;
-  font-size: 17px;
-  display: flex;
-  justify-content: space-between;
-  margin: 0 10px 0 0;
-  @media all and (max-width:767px)
- {
-  min-height: 20%;
-  height: 130px;
- }
-`;
-
-const TextBox = styled.div`
-  min-width: 80px;
-  box-sizing: border-box;
-  padding: 0 5px 0 0;
-`;
 
 const IconBox = styled.div`
   display: flex;
