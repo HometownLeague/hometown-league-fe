@@ -16,7 +16,7 @@ function MyMatching() {
 
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const matchingList = useSelector((state) => state.matching.matchingList);
+  const matchingList = useSelector((state) => state.matching.userMatchingList);
   // const isLoading = useSelector((state) => state.teamData.isLoading);
   const [matchingRequestId, setMatchingRequestId] = useState();
   const [teamId, setTeamId] = useState();
@@ -52,26 +52,24 @@ function MyMatching() {
   }, [user]);
 
   return (
-    <ContentBox>
+    <>
       {!isOpenCard && (
-        <ListBox>
-          <BoxTitle>매칭 리스트</BoxTitle>
-          {user && matchingList && matchingList.map((match, idx) => {
-            return (
-              <div key={match.matchingRequestId} onClick={() => {
-                openCardHandler(match.matchingRequestId, match.teamId);
-              }} >
-                <CardViewContent team={match} isMatchingView="true" />
-              </div>
-            );
-          })}
-        </ListBox>
-      )}
-
-
+        <ContentBox>
+          <ListBox>
+            <BoxTitle>매칭 리스트</BoxTitle>
+            {user && matchingList && matchingList.map((match, idx) => {
+              return (
+                <div key={match.matchingRequestId} onClick={() => {
+                  openCardHandler(match.matchingRequestId, match.teamId);
+                }} >
+                  <CardViewContent team={match} isMatchingView="true" />
+                </div>
+              );
+            })}
+          </ListBox>
+        </ContentBox>)}
       {isOpenCard && (<MatchingInfo onClose={closeCardHandler} matchingRequestId={matchingRequestId} teamId={teamId} />)}
-    </ContentBox>
-
+    </>
   )
 }
 
@@ -79,7 +77,6 @@ export default MyMatching
 
 const ContentBox = styled.div`
   margin: 60px auto 0px auto;
-  padding: 0px 100px 0 130px;
   width: 85%;
   gap: 35px;
   @media all and  (max-width:1023px){

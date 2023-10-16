@@ -16,7 +16,6 @@ const LOGIN_CHECK = "LOGIN_CHECK";
 //initialState
 const initialState = {
   user: null,
-  userTeams: [],
   is_login: false,
 };
 

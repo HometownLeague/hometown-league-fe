@@ -5,35 +5,58 @@ import dayjs from 'dayjs';
 import { useSelector, useDispatch } from "react-redux";
 import { CloseOutlined ,UploadOutlined,MinusCircleOutlined,PlusOutlined} from '@ant-design/icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPersonRunning } from '@fortawesome/free-solid-svg-icons';
+import { faPersonRunning,faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 
 import { Text,Grid,Image } from "./elements";
-import { actionCreators as matchActions } from "../redux/matchApi";
+import matchApi, { actionCreators as matchActions } from "../redux/matchApi";
 import {KakaoMap} from '../components';
 
 function MatchingInfo({onClose,matchingRequestId,teamId}) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const matchingList=useSelector((state)=>state.matching.detailMatchingList);
-  const matchingData=matchingList.find(m=>m.matchingRequestId===matchingRequestId);
+  const matchingData=matchingList.find(m=>m.matchingRequestId===matchingRequestId).data;
   // const [otherTeamData,setOtherTeamData]=useState({});
 
   const statusMent=()=>{
-    if(matchingData.data.status==='W') return "매칭이 아직 안잡혔어요, 조금만 더 기다려 주세요."
-    else if(matchingData.data.status==='B') return "매칭이 잡혔습니다. 수락을 눌러주세요!"
-    else if(matchingData.data.status==='O') return "상대 팀의 수락을 기다려 주세요."
+    if(matchingData.ourTeam.status==='W') return "매칭이 아직 안잡혔어요, 조금만 더 기다려 주세요."
+    else if(matchingData.ourTeam.status==='C') return "매칭이 잡혔습니다. 수락을 눌러주세요!"
+    else if(matchingData.ourTeam.status==='O'&&matchingData.matchingDetail.status==='O') return "상대 팀의 수락을 기다려 주세요."
     else return "경기 날만 기다리는 중!"
   }//, 경기 확정을 위해 매칭 수락을 눌러주세요.
 
   const timeMent=()=>{
     const currentTime = dayjs();
-    const targetTime = dayjs(matchingData.data.requestTimestamp, { format: 'YYYYMMDDHHmmss' });
-    const duration = currentTime.diff(targetTime, 'hours');
-    console.log(duration)
-    return `매칭을 요청한지 ${duration}시간 지났습니다.`
-  }
+    let targetTime=dayjs();
 
+    let targetMent='';
+    if(matchingData.ourTeam.status==='W') {
+      targetMent='매칭을 요청한지 ';
+      targetTime = dayjs(matchingData.matchingDetail.requestTimestamp, { format: 'YYYYMMDDHHmm' });
+    }
+    else if(matchingData.ourTeam.status==='C') {
+      targetMent= `매칭이 잡힌지 `;
+      targetTime=dayjs(matchingData.matchingDetail.makeTimestamp, { format: 'YYYYMMDDHHmm' });
+    }
+    else{ 
+      targetTime=dayjs(matchingData.matchingDetail.matchTimestamp, { format: 'YYYYMMDDHHmm' });
+      const duration = currentTime.diff(targetTime, 'hours');
+      return `경기 날까지 ${duration}시간 남았습니다!`
+    }
+    const duration = currentTime.diff(targetTime, 'hours');
+    return ` ${targetMent} ${duration}시간 지났습니다.`
+  }
+  const onClickOKBtn=()=>{
+    //상대 팀만 수락한 매칭=> 매칭 수락
+    //두팀 다 수락 전인 매칭 -> 매칭 수락
+    //dispatch(matchActions.)
+  }
+  const onClickNoBtn=()=>{
+    //내 팀만 수락한 매칭,양 팀 모두 수락한 매칭 =>  매칭 취소
+    //상대 팀만 수락한 매칭 => 매칭 거절
+    //두팀 다 수락 전인 매칭=> 매칭 거절
+  }
   useEffect(() => {
     dispatch(matchActions.getDetailMatchingDB(matchingRequestId));
     let polling = setInterval(() => {
@@ -46,8 +69,19 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
   }, []);
 
   return (
-    <ContainerBox >
-      <Mentbox>
+    <Container >
+      <BackBox>
+        <BackIconBox>
+          <FontAwesomeIcon icon={faArrowLeft}  size="2xl"/>
+        </BackIconBox>
+        <Grid is_flex flex_direction="column" >
+          <Text bold size="1.25rem">나의 전체 매칭 보기</Text>
+        </Grid>
+      </BackBox>
+      
+      {matchingData&&(
+        <>
+         <Mentbox>
         <Text size="18px" margin="-1px 0px 0px 7px" bold>
           <Point>{user.nickname}님</Point> {statusMent()}
         </Text>
@@ -59,43 +93,43 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
         <ItemBox>
         {/* 장소, 시간 정보 */}
         <Text size="18px" margin="-1px 0px 0px 7px" bold>경기 일시</Text>
-
+          <Grid is_flex width="50%" margin="0 auto" center>
+            {matchingData.matchingDetail.status!=="W"&&(
+              <Text> {dayjs(matchingData.matchingDetail.matchTimestamp, { format: 'YYYYMMDDHHmm' })}</Text>
+            )}
+          </Grid>
         <Text size="18px" margin="-1px 0px 0px 7px" bold>경기 장소</Text>
         <KakaoMap searchplace=''/>
         </ItemBox>
-        {matchingData.data.ourTeam&&(
+        {matchingData.ourTeam&&(
         <ItemBox>
           <TeamBox>
             <Rank>
-              <BoxTitle>{matchingData.data.ourTeam.team.name}</BoxTitle>
+              <BoxTitle>{matchingData.ourTeam.team.name}</BoxTitle>
               <Text size="8px" center title>
-                <Point>{matchingData.data.ourTeam.team.rankScore}점</Point>
+                <Point>{matchingData.ourTeam.team.rankScore}점</Point>
               </Text>
             </Rank>
               {/* <FontAwesomeIcon icon={faPersonRunning} /> */}
-            <div>
-
               <BoxTitle>선수진</BoxTitle>
-              <Grid>
-                {matchingData.data.ourTeam.players.map((p, idx) => {
-                  <Rank>
-                    <Text bold title>
-                      {p.nickname}
-                    </Text>
-                  </Rank>
-                })}
-              </Grid>
-            </div>
+                {matchingData.ourTeam.players.map((p, idx) => {return(
+                  <Grid is_flex width="50%" margin="0 auto" center>
+                    {p.nickname}
+                  </Grid>
+                )})}
+
           </TeamBox> 
         </ItemBox>
         )}
+
+        
         <ItemBox>
-          {matchingData.data.matchingDetail.status!=='W'?(
+          {matchingData.matchingDetail.status!=='W'?(
             <TeamBox>
               <Rank>
-                <BoxTitle>{matchingData.data.otherTeam.team.name}</BoxTitle>
+                <BoxTitle>{matchingData.otherTeam.team.name}</BoxTitle>
                 <Text size="8px" center title>
-                  <Point>{matchingData.data.otherTeam.team.rankScore}점</Point>
+                  <Point>{matchingData.otherTeam.team.rankScore}점</Point>
                 </Text>
               </Rank>
                 {/* <FontAwesomeIcon icon={faPersonRunning} /> */}
@@ -103,7 +137,7 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
 
                 <BoxTitle>선수진</BoxTitle>
                 <Grid>
-                  {matchingData.data.otherTeam.players.map((p, idx) => {
+                  {matchingData.otherTeam.players.map((p, idx) => {
                     <Rank>
                       <Text bold title>
                         {p.nickname}
@@ -121,16 +155,22 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
         )}
         </ItemBox> 
       </Content>
-    </ContainerBox>
+      <ButtonBox>
+          {/* {matchingData.data} */}
+      </ButtonBox>
+        </>
+      )}
+     
+    </Container>
   )
 }
 
 export default MatchingInfo
-const ContainerBox = styled.div`
-  width: 70%;
+const Container = styled.div`
+  width: 80%;
   min-width: 749px;
   max-width: 1004px;
-  margin: 0 auto;
+  margin: 1rem auto;
   @media all and (max-width: 768px) {
   width: 94%;
   min-width: 720px;s
@@ -140,6 +180,28 @@ const ContainerBox = styled.div`
       width: 100%;
   }
 `;
+const BackBox=styled.div`
+display: flex; 
+padding: 2rem 1rem 0.5rem 0.5rem;
+flex-direction: row; 
+align-items: center; 
+border-bottom-width: 1px; 
+border-color: #E5E7EB; 
+width: 100%; 
+`
+const BackIconBox=styled.div`
+padding: 0.5rem; 
+margin-right: 1rem; 
+border-radius: 9999px; 
+transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+transition-duration: 300ms; 
+transition-duration: 300ms; 
+cursor: pointer; 
+:hover {
+ background-color: #E5E7EB; 
+ }
+`
 const Content=styled.div`
   display: flex;
   justify-content: space-between;
@@ -217,18 +279,5 @@ const Point = styled.span`
   color: #22668D;
 `;
 
-const PlayerNameBox=styled.div`
-background-color: rgb(255, 255, 255, 0.4);
-border-radius: 10px;
-box-shadow: 0px 1px 8px #dfdbdb;
-text-align: center;
-padding: 20px;
-box-sizing: border-box;
-font-size: 17px;
-margin-bottom: 30px;
-position: relative;
-justify-content: space-between;
-@media all and (max-width: 1023px) {
-  width: 90%;
-}
+const ButtonBox=styled.div`
 `

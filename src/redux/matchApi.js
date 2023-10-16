@@ -134,16 +134,93 @@ const getDetailMatchingDB = (matchingRequestId) => {
   }
 }
 
-const acceptMatchingDB = () => {
-
+const acceptMatchingDB = (matchingRequestId) => {
+  return function (dispatch, { history }) {
+    axios.get(`/matching/${matchingRequestId}/detail`)
+      .then((response) => {
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            Swal.fire({
+              text: "매칭을 수락하셨습니다",
+              confirmButtonColor: "#FFCC70",
+            })
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
+        }
+      })
+      .catch((err) => {
+        console.log(err, 'error');
+        Swal.fire({
+          text: err.error,
+          confirmButtonColor: '#E3344E',
+          confirmButtonText: err.message,
+        });
+        return;
+      });
+  }
 }
 
-const refuseMatchingDB = () => {
-
+const refuseMatchingDB = (matchingRequestId) => {
+  return function (dispatch, { history }) {
+    axios.get(`/matching/${matchingRequestId}/detail`)
+      .then((response) => {
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            const data = response.data.data
+            dispatch(getDetailMatching(matchingRequestId, data));
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
+        }
+      })
+      .catch((err) => {
+        console.log(err, 'error');
+        Swal.fire({
+          text: err.error,
+          confirmButtonColor: '#E3344E',
+          confirmButtonText: err.message,
+        });
+        return;
+      });
+  }
 }
 
-const cancleMatchingDB = () => {
-
+const cancleMatchingDB = (matchingRequestId) => {
+  return function (dispatch, { history }) {
+    axios.get(`/matching/${matchingRequestId}/detail`)
+      .then((response) => {
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            const data = response.data.data
+            dispatch(getDetailMatching(matchingRequestId, data));
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
+        }
+      })
+      .catch((err) => {
+        console.log(err, 'error');
+        Swal.fire({
+          text: err.error,
+          confirmButtonColor: '#E3344E',
+          confirmButtonText: err.message,
+        });
+        return;
+      });
+  }
 }
 
 const submitMatchingResultDB = () => {

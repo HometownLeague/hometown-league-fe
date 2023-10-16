@@ -57,7 +57,6 @@ function TeamProfile() {
     dispatch(matchAction.requestMatchingDB(teamId))
   }
   useEffect(() => {
-    console.log(matchingList)
     //TODO - 유저의 팀 어떻게 가져올지 ..
     // dispatch(teamAction.getTeamDetailDB(teamId));
     // const data = alluserteam.filter(team => team.id == teamId)
@@ -136,15 +135,17 @@ function TeamProfile() {
                     margin="0 0 10px 0"
                     color="#ffffff"
                     _onClick={openUpdateTeamOwnerModal}> 주장 변경 </Button>
-                  {matchingList.some(match => match.teamId === teamId) && (<></>)}
-                  <Button radius="5px 5px 5px 5px"
-                    size="20px"
-                    padding=" 3.6px 0"
-                    margin="0 0 10px 0"
-                    color="#ffffff"
-                    _onClick={onClickMatching}>
-                    매칭 요청
-                  </Button>
+                  {matchingList && matchingList.some(match => match.teamId === teamId) && (<>
+                    <Button radius="5px 5px 5px 5px"
+                      size="20px"
+                      padding=" 3.6px 0"
+                      margin="0 0 10px 0"
+                      color="#ffffff"
+                      _onClick={onClickMatching}>
+                      매칭 요청
+                    </Button>
+                  </>)}
+
 
 
                 </ButtonBox>
