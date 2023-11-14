@@ -26,7 +26,7 @@ function NavHeader() {
           <StyledLink to="/myMatching">매칭</StyledLink>
         </StyledLi>
         <StyledLi>
-          <StyledLink to="/">이적 시장</StyledLink>
+          <StyledLink to="/searchTeam">이적 시장</StyledLink>
         </StyledLi>
         <StyledLi>
           <StyledLink to="/">커뮤니티</StyledLink>

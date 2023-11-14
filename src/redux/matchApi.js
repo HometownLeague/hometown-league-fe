@@ -18,30 +18,6 @@ const CREATE_MATCHING_RESULT = "CREATE_MATCHING_RESULT";
 const initialState = {
   userMatchingList: [],
   detailMatchingList: [],
-  //     matchingRequestId:1,
-  //     data:{
-  //       matchingDetail : {
-  //       teamId : 3,
-  //       requestTimestamp : "20230930164443",
-  //       status : "W",
-  //       statusName : "대기"
-  //     },
-  //     ourTeam : {
-  //       status : "W",
-  //       statusName : "대기",
-  //       team : {
-  //         id : 155,
-  //         name : "test-name",
-  //         ownerId : "neta6603@naver.com",
-  //         description : "테스트 설명",
-  //         rankScore : 1500,
-  //         kind : 1
-  //       },
-  //     }
-
-  //     }
-  // }
-
 };
 const getUserMatching = createAction(GET_USER_MATCHING, (userMatchingList) => ({ userMatchingList }));
 const getDetailMatching = createAction(GET_DETAIL_MATCHING, (matchingRequestId, data) => ({ matchingRequestId, data }));
@@ -136,7 +112,7 @@ const getDetailMatchingDB = (matchingRequestId) => {
 
 const acceptMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/${matchingRequestId}/detail`)
+    axios.get(`/matching/accept`, matchingRequestId)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -167,12 +143,14 @@ const acceptMatchingDB = (matchingRequestId) => {
 
 const refuseMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/${matchingRequestId}/detail`)
+    axios.post(`/matching/refuse`, matchingRequestId)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            const data = response.data.data
-            dispatch(getDetailMatching(matchingRequestId, data));
+            Swal.fire({
+              text: "매칭을 거절하셨습니다",
+              confirmButtonColor: "#FFCC70",
+            })
             break;
           default:
             Swal.fire({
@@ -196,12 +174,14 @@ const refuseMatchingDB = (matchingRequestId) => {
 
 const cancleMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/${matchingRequestId}/detail`)
+    axios.delete(`/matching/${matchingRequestId}`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            const data = response.data.data
-            dispatch(getDetailMatching(matchingRequestId, data));
+            Swal.fire({
+              text: "매칭을 취소하셨습니다",
+              confirmButtonColor: "#FFCC70",
+            })
             break;
           default:
             Swal.fire({

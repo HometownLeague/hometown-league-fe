@@ -30,7 +30,7 @@ function CardViewContent({team,isMatchingView}) {
         </Text>
         {isMatchingView&&(
           <Text size="15px" $title>
-            {team.status==="W"?'매칭 대기중':'매칭 완료'}
+            {team.status==="W"?'매칭 대기중':team.matchTimestamp}
         </Text>
         )}
       </TextBox>

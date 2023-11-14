@@ -8,8 +8,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPersonRunning,faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import Swal from 'sweetalert2';
 
-import { Text,Grid,Image } from "./elements";
-import matchApi, { actionCreators as matchActions } from "../redux/matchApi";
+import { Text,Grid,Image, Button } from "./elements";
+import { actionCreators as matchActions } from "../redux/matchApi";
 import {KakaoMap} from '../components';
 
 function MatchingInfo({onClose,matchingRequestId,teamId}) {
@@ -18,7 +18,6 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
   const matchingList=useSelector((state)=>state.matching.detailMatchingList);
   const matchingData=matchingList.find(m=>m.matchingRequestId===matchingRequestId).data;
   // const [otherTeamData,setOtherTeamData]=useState({});
-
   const statusMent=()=>{
     if(matchingData.ourTeam.status==='W') return "매칭이 아직 안잡혔어요, 조금만 더 기다려 주세요."
     else if(matchingData.ourTeam.status==='C') return "매칭이 잡혔습니다. 수락을 눌러주세요!"
@@ -48,14 +47,17 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
     return ` ${targetMent} ${duration}시간 지났습니다.`
   }
   const onClickOKBtn=()=>{
-    //상대 팀만 수락한 매칭=> 매칭 수락
-    //두팀 다 수락 전인 매칭 -> 매칭 수락
-    //dispatch(matchActions.)
+    dispatch(matchActions.acceptMatchingDB(matchingRequestId))
   }
   const onClickNoBtn=()=>{
     //내 팀만 수락한 매칭,양 팀 모두 수락한 매칭 =>  매칭 취소
-    //상대 팀만 수락한 매칭 => 매칭 거절
-    //두팀 다 수락 전인 매칭=> 매칭 거절
+    if(matchingData.ourTeam.status==='O'){
+      dispatch(matchActions.cancleMatchingDB(matchingRequestId))
+    }else{
+      //수락 전인 매칭=> 매칭 거절
+      dispatch(matchActions.refuseMatchingDB(matchingRequestId))
+    }
+    
   }
   useEffect(() => {
     dispatch(matchActions.getDetailMatchingDB(matchingRequestId));
@@ -120,9 +122,7 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
 
           </TeamBox> 
         </ItemBox>
-        )}
-
-        
+        )}   
         <ItemBox>
           {matchingData.matchingDetail.status!=='W'?(
             <TeamBox>
@@ -155,9 +155,24 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
         )}
         </ItemBox> 
       </Content>
+      
+      {matchingData.ourTeam.status==='W'&&(
       <ButtonBox>
-          {/* {matchingData.data} */}
+        <Button _onClick={onClickNoBtn}>매칭 취소</Button>
       </ButtonBox>
+      )}
+      {matchingData.ourTeam.status==='C'&&(
+      <ButtonBox>
+        <Button _onClick={onClickOKBtn}>매칭 수락</Button>
+        <Button _onClick={onClickNoBtn}>매칭 거절</Button>
+      </ButtonBox>
+       )}
+      {matchingData.ourTeam.status==='O'&&(
+      <ButtonBox>
+        <Button _onClick={onClickNoBtn}>경기 취소</Button>
+      </ButtonBox>
+       )}
+
         </>
       )}
      

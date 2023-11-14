@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 
 import { actionCreators as teamAction } from "../redux/teamApi";
 import { actionCreators as matchAction } from "../redux/matchApi";
-import { Playerimg, Trophy } from "../images";
+import { Playerimg, Trophy } from "../assets/images";
 import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
@@ -30,7 +30,7 @@ function TeamProfile() {
   const user = useSelector((state) => state.user.user);
   const alluserteam = useSelector((state) => state.team.userTeams);
   // const isLoading = useSelector((state) => state.teamData.isLoading);
-  const matchingList = useSelector((state) => state.matching.matchingList);
+  const matchingList = useSelector((state) => state.matching.userMatchingList);
 
   const { openModal } = useModals();
   const openUpdateTeamModal = () => {

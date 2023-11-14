@@ -5,8 +5,9 @@ import { useDispatch } from "react-redux";
 import { Space, Button, Input, Form } from 'antd';
 import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
+import _, { debounce } from 'lodash';
 
-import { actionCreators as userAction } from "../redux/userApi";
+import { actionCreators as userActions } from "../redux/userApi";
 
 import useInput from '../components/useInput';
 
@@ -14,18 +15,6 @@ import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
 
-const StyledForm = styled.div`
-  max-width:100%;
-  margin: 0 auto;
-  text-align: center;
-  padding: 10px;
-  @media (min-width: 450px) {
-    max-width:70%;
-  }
-  @media (min-width: 701px) {
-    max-width: 300px;
-  }
-`;
 
 const Join = () => {
   const dispatch = useDispatch();
@@ -47,7 +36,7 @@ const Join = () => {
   // 회원가입 요청
   // 버튼을 누르면 validation이 완료된 후에 실행되서 각 필드를 다시 확인안해도됨
   const onsubmitForm = useCallback(({ email, nickname, password, desc }) => {
-    dispatch(userAction.registerDB(email, password, nickname, desc));
+    dispatch(userActions.registerDB(email, password, nickname, desc));
   }, []);
 
   // nickname 유효성 검사
@@ -81,7 +70,7 @@ const Join = () => {
   }, []);
 
   // nickname 중복 검사
-  const onBlurNickname = useCallback(() => {
+  const onBlurNickname = useCallback(debounce(() => {
     if (form.getFieldError('nickname').length === 0 && form.getFieldValue('nickname')) {
       axios.get(`/user/is-duplicate?type=nickname&value=${form.getFieldValue('nickname')}`)
         .catch((e) => {
@@ -95,7 +84,7 @@ const Join = () => {
           }
         });
     }
-  }, []);
+  }, 200), []);
 
   // email 유효성 검사
   const validateEmail = useCallback((_, value) => {
@@ -234,3 +223,16 @@ const Join = () => {
 };
 
 export default Join;
+
+const StyledForm = styled.div`
+  max-width:100%;
+  margin: 0 auto;
+  text-align: center;
+  padding: 10px;
+  @media (min-width: 450px) {
+    max-width:70%;
+  }
+  @media (min-width: 701px) {
+    max-width: 300px;
+  }
+`;
