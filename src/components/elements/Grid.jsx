@@ -92,6 +92,7 @@ const GridBox = styled.div`
     props.border_right ? `border-right:${props.border_right}` : ""}
       ${(props) =>
     props.border_bottom ? `border-bottom:${props.border_bottom}` : ""}
+  flex-direction:${(props)=>props.flex_direction};
 `;
 
 export default Grid;

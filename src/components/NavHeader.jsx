@@ -23,10 +23,10 @@ function NavHeader() {
           <StyledLink to="/teamManagement">팀 관리</StyledLink>
         </StyledLi>
         <StyledLi>
-          <StyledLink to="/matching">매칭</StyledLink>
+          <StyledLink to="/myMatching">매칭</StyledLink>
         </StyledLi>
         <StyledLi>
-          <StyledLink to="/">이적 시장</StyledLink>
+          <StyledLink to="/searchTeam">이적 시장</StyledLink>
         </StyledLi>
         <StyledLi>
           <StyledLink to="/">커뮤니티</StyledLink>

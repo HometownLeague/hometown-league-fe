@@ -129,7 +129,7 @@ const StlyedLink = styled(Link)`
   height: 28px;
   font-size: 15px;
   color: #ffffff;
-  background: transparent linear-gradient(124deg, #7f58ec 0%, #5c5ce3 100%) 0%
+  background: transparent linear-gradient(124deg, #00AFF0 0%,#22668D 100%) 0%
     0% no-repeat padding-box;
   border-radius: 14px;
   border: none;

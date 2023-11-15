@@ -15,54 +15,26 @@ const GET_USER_TEAMS = "GET_USER_TEAMS";
 const UPDATE_TEAM = "UPDATE_TEAM";
 const UPDATE_TEAM_OWNER = "UPDATE_TEAM_OWNER";
 const LEAVE_TEAM = 'LEAVE_TEAM';
-const GET_RANK = "GET_RANK";
+const GET_SEARCH_ALL_TEAM = 'GET_SEARCH_ALL_TEAM';
 
-const initialState = {
-  teamList: [],
-  userTeams: [],
-  rank: [],
-  isLoading: false,
-};
 
-const getQueryTeam = createAction(GET_QUERY_TEAM, (teamList) => ({ teamList }));
 const getUserTeams = createAction(GET_USER_TEAMS, (userTeams) => ({ userTeams }));
 const getTeamDetail = createAction(GET_TEAM_DETAIL, (team) => ({ team }));
 const createTeam = createAction(CREATE_TEAM, (team) => ({ team }));
 const deleteTeam = createAction(DELETE_TEAM, (team) => ({ team }));
 const addMember = createAction(ADD_MEMBER, (team) => ({ team }));
 const updateTeam = createAction(UPDATE_TEAM, (team) => ({ team }));
-const updateTeamOwner = createAction(UPDATE_TEAM_OWNER, (team) => ({ team }));
+const updateTeamOwner = createAction(UPDATE_TEAM_OWNER, (teamId, newOwnerId) => ({ teamId, newOwnerId }));
 const leaveTeam = createAction(LEAVE_TEAM, (team) => ({ team }));
 const loading = createAction(LOADING, (isLoading) => ({ isLoading }));
+const getSearchTeam = createAction(GET_QUERY_TEAM, (filteredTeamlist) => ({ filteredTeamlist }));
+const getSearchAllTeam = createAction(GET_SEARCH_ALL_TEAM, (allTeamList) => ({ allTeamList }));
 
-
-//const getRank = createAction(GET_RANK, (rank) => ({ rank }));
-
-// 쿼리에 맞는 팀목록 조회
-const getQueryTeamDB = (id) => {
-  // return function (dispatch, { history }) {
-  //   dispatch(loading(true));
-  //   axios
-  //     .get(`/team/${id}`)
-  //     .then((response) => {
-  //       if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
-  //         dispatch(getQueryTeam(response.data.data));
-  //       }
-  //       else if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
-  //         dispatch(replace("/"));
-  //         Swal.fire({
-  //           text: "로그인 만료되었습니다.",
-  //           confirmButtonColor: "rgb(118, 118, 118)",
-  //         });
-  //       } else {
-  //         Swal.fire({
-  //           text: "팀 상세 정보를 불러오기에 실패했습니다. ",
-  //           confirmButtonColor: "#E3344E",
-  //         });
-  //       }
-  //     })
-  //     .catch((err) => console.log(err));
-  // };
+const initialState = {
+  allTeamList: [],
+  userTeams: [],
+  filteredTeamlist: [],
+  isLoading: false,
 };
 
 //SECTION - 유저의 팀 정보 조회. 쿠키로 로그인 세션이 넘어감.
@@ -129,7 +101,7 @@ const createTeamDB = (teamInfo) => {
             dispatch(createTeam(teamInfo));
             Swal.fire({
               text: "새로운 팀을 만들었습니다!",
-              confirmButtonColor: "rgb(118, 118, 118)",
+              confirmButtonColor: "#FFCC70",
             })
             break;
           default:
@@ -153,7 +125,7 @@ const deleteTeamDB = (id) => {
       confirmButtonColor: "#E2344E",
       confirmButtonText: "삭제",
       cancelButtonText: "취소",
-      cancelButtonColor: "rgb(118, 118, 118)",
+      cancelButtonColor: "#FFCC70",
     }).then((result) => {
       if (result.isConfirmed) {
         axios
@@ -222,7 +194,7 @@ const updateTeamDB = (bData, tData, lData) => {
             dispatch(updateTeam(response.data.data));
             Swal.fire({
               text: "새로운 팀을 만들었습니다!",
-              confirmButtonColor: "rgb(118, 118, 118)",
+              confirmButtonColor: "#FFCC70",
             })
             break;
           default:
@@ -288,7 +260,7 @@ const leaveTeamDB = (teamId) => {
               default:
                 Swal.fire({
                   text: response.data.responseCode.message,
-                  confirmButtonColor: "#E3344E",
+                  confirmButtonColor: "#FFCC70",
                 });
                 break;
             }
@@ -322,6 +294,61 @@ const updateTeamOwnerDB = (teamId, newOwnerId) => {
       .catch((err) => console.log(err));
   };
 }
+//!SECTION 팀 검색
+const getSearchAllTeamDB = () => {
+  return function (dispatch, { history }) {
+    dispatch(loading(true));
+    axios
+      .get(`/team?name=""`)
+      .then((response) => {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
+          dispatch(getSearchAllTeam(response.data.data));
+        }
+        else if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
+          dispatch(replace("/"));
+          Swal.fire({
+            text: "로그인 만료되었습니다.",
+            confirmButtonColor: "rgb(118, 118, 118)",
+          });
+        } else {
+          Swal.fire({
+            text: "팀 검색에 실패했습니다. ",
+            confirmButtonColor: "#E3344E",
+          });
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+};
+
+// 쿼리에 맞는 팀목록 조회
+const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, keyword }) => {
+  return function (dispatch, { history }) {
+    dispatch(loading(true));
+    axios
+      .get(`/team?${province ? `address-si=` + province : ''}${city ? `&address-gungu=` + city : ''}&${fromScore ? `&from-score=` + fromScore : ''}${toScore ? `&to-score=` + toScore : ''}${dayOfWeek ? `&day-of-Week=` + dayOfWeek : ''}${time ? `&time=` + time : ''}${keyword ? `&name=` + keyword : ''}`)
+      .then((response) => {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
+          dispatch(getSearchTeam(response.data.data));
+        }
+        else if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
+          dispatch(replace("/"));
+          Swal.fire({
+            text: "로그인 만료되었습니다.",
+            confirmButtonColor: "rgb(118, 118, 118)",
+          });
+        } else {
+          Swal.fire({
+            text: "팀 검색에 실패했습니다. ",
+            confirmButtonColor: "#E3344E",
+          });
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+};
+
+
 //draft는 현재 값이 복사된 새로운 state  
 export default handleActions(
   {
@@ -383,6 +410,17 @@ export default handleActions(
           return t
         })
       }),
+    [GET_SEARCH_ALL_TEAM]: (state, action) =>
+      produce(state, (draft) => {
+        draft.allTeamList = action.payload.allTeamList;
+        draft.isLoading = false;
+      }),
+    [GET_QUERY_TEAM]: (state, action) =>
+      produce(state, (draft) => {
+        draft.filteredTeamlist = action.payload.filteredTeamlist;
+        console.log(action.payload)
+        draft.isLoading = false;
+      }),
     [LOADING]: (state, action) =>
       produce(state, (draft) => {
         draft.isLoading = action.payload.isLoading;
@@ -392,8 +430,8 @@ export default handleActions(
 );
 
 const actionCreators = {
-  getQueryTeam,
-  getQueryTeamDB,
+  getSearchTeamDB,
+  getSearchAllTeamDB,
   getUserTeams,
   getUserTeamsDB,
   getTeamDetail,

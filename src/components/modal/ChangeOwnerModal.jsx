@@ -74,6 +74,7 @@ const ChangeOwnerModal = ({onSubmit, onClose,teamId}) => {
           </Player>
         )
         })}
+        {teamPlayers.length===1&&(<Text> 주장으로 바꿀 팀원이 없습니다.</Text>)}
       <Form.Item style={{ textAlign: 'center', marginTop:10}}>
         <Button type="primary" htmlType="submit">
           Change
