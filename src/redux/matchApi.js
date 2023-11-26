@@ -3,6 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
+import api from "./api";
 
 //Action Types
 const REQUEST_MATCHING = "REQUEST_MATCHING";
@@ -24,7 +25,8 @@ const getDetailMatching = createAction(GET_DETAIL_MATCHING, (matchingRequestId, 
 
 const requestMatchingDB = (id) => {
   return function (dispatch, { history }) {
-    axios.post(`/matching/request`, { teamId: id })
+    api.post(`/matching/request`, { teamId: id })
+    //axios.post(`/matching/request`, { teamId: id })
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -56,7 +58,8 @@ const requestMatchingDB = (id) => {
 
 const getUserMatchingDB = (id) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/${id}`)
+    api.get(`/matching/${id}`)
+    // axios.get(`/matching/${id}`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -83,7 +86,8 @@ const getUserMatchingDB = (id) => {
 }
 const getDetailMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/${matchingRequestId}/detail`)
+    api.get(`/matching/${matchingRequestId}/detail`)
+    // axios.get(`/matching/${matchingRequestId}/detail`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -112,7 +116,8 @@ const getDetailMatchingDB = (matchingRequestId) => {
 
 const acceptMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/accept`, matchingRequestId)
+    api.get(`/matching/accept`, matchingRequestId)
+    // axios.get(`/matching/accept`, matchingRequestId)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -143,7 +148,8 @@ const acceptMatchingDB = (matchingRequestId) => {
 
 const refuseMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.post(`/matching/refuse`, matchingRequestId)
+    api.post(`/matching/refuse`, matchingRequestId)
+    // axios.post(`/matching/refuse`, matchingRequestId)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -174,7 +180,8 @@ const refuseMatchingDB = (matchingRequestId) => {
 
 const cancleMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.delete(`/matching/${matchingRequestId}`)
+    api.delete(`/matching/${matchingRequestId}`)
+    // axios.delete(`/matching/${matchingRequestId}`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:

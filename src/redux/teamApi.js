@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
 import { actionCreators as userAction } from "./userApi"
+import api from "./api";
 //Action Types
 const GET_QUERY_TEAM = "GET_QUERY_TEAM";
 const GET_TEAM_DETAIL = "GET_TEAM_DETAIL";
@@ -40,7 +41,8 @@ const initialState = {
 //SECTION - 유저의 팀 정보 조회. 쿠키로 로그인 세션이 넘어감.
 const getUserTeamsDB = () => {
   return function (dispatch, { history }) {
-    axios.get(`/user/team`)
+    api.get(`/user/team`)
+    // axios.get(`/user/team`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(getUserTeams(response.data.data));
@@ -67,7 +69,8 @@ const getUserTeamsDB = () => {
 const getTeamDetailDB = (id) => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
-    axios
+    api
+    // axios
       .get(`/team/${id}`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
@@ -93,7 +96,8 @@ const getTeamDetailDB = (id) => {
 //SECTION -팀 생성
 const createTeamDB = (teamInfo) => {
   return function (dispatch, { history }) {
-    axios
+    api
+    // axios
       .post(`/team`, teamInfo)
       .then((response) => {
         switch (response.data.responseCode.code) {
@@ -128,7 +132,8 @@ const deleteTeamDB = (id) => {
       cancelButtonColor: "#FFCC70",
     }).then((result) => {
       if (result.isConfirmed) {
-        axios
+        api
+        // axios
           .delete(`/team/${id}`)
           .then((response) => {
             switch (response.data.responseCode.code) {
@@ -152,7 +157,8 @@ const deleteTeamDB = (id) => {
 };
 const updateTeamDB = (bData, tData, lData) => {
   return function (dispatch, { history }) {
-    axios
+    api
+    // axios
       .patch(`/team`, bData)
       .then((response) => {
         switch (response.data.responseCode.code) {
@@ -169,7 +175,8 @@ const updateTeamDB = (bData, tData, lData) => {
         }
       })
       .catch((err) => console.log(err));
-    axios
+      api
+    // axios
       .put(`/team/play-time`, tData)
       .then((response) => {
         switch (response.data.responseCode.code) {
@@ -186,7 +193,8 @@ const updateTeamDB = (bData, tData, lData) => {
         }
       })
       .catch((err) => console.log(err));
-    axios
+      api
+    // axios
       .put(`/team/play-location`, lData)
       .then((response) => {
         switch (response.data.responseCode.code) {
@@ -212,7 +220,8 @@ const updateTeamDB = (bData, tData, lData) => {
 //팀에 멤버 추가하기
 const addMemberDB = (teamId, joinUserId) => {
   return function (dispatch, { history }) {
-    axios
+    api
+    // axios
       .post(`/team/accept`, {
         teamId: teamId,
         joinRequestId: joinUserId
@@ -248,7 +257,8 @@ const leaveTeamDB = (teamId) => {
       cancelButtonColor: "rgb(118, 118, 118)",
     }).then((result) => {
       if (result.isConfirmed) {
-        axios
+        api
+        // axios
           .delete(`/team/`)
           .then((response) => {
             switch (response.data.responseCode.code) {
@@ -273,7 +283,8 @@ const leaveTeamDB = (teamId) => {
 const updateTeamOwnerDB = (teamId, newOwnerId) => {
   return function (dispatch, { history }) {
     console.log(teamId, newOwnerId)
-    axios
+    api
+    // axios
       .patch(`/team/${teamId}/owner`, {
         userId: newOwnerId
       })
@@ -298,7 +309,8 @@ const updateTeamOwnerDB = (teamId, newOwnerId) => {
 const getSearchAllTeamDB = () => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
-    axios
+    api
+    // axios
       .get(`/team?name=""`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
@@ -325,7 +337,8 @@ const getSearchAllTeamDB = () => {
 const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, keyword }) => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
-    axios
+    api
+    // axios
       .get(`/team?${province ? `address-si=` + province : ''}${city ? `&address-gungu=` + city : ''}&${fromScore ? `&from-score=` + fromScore : ''}${toScore ? `&to-score=` + toScore : ''}${dayOfWeek ? `&day-of-Week=` + dayOfWeek : ''}${time ? `&time=` + time : ''}${keyword ? `&name=` + keyword : ''}`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {

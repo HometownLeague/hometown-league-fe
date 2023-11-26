@@ -3,6 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
+import api from "./api";
 
 //import { API_URL } from '../lib/constants'
 
@@ -28,7 +29,8 @@ const loginCheck = createAction(LOGIN_CHECK, (user) => ({ user }))
 //회원가입 API
 const registerDB = (id, password, nickname, desc) => {
   return function (dispatch, { history }) {
-    axios({
+    api({
+    // axios({
       method: "post",
       url: `/user/join`,
       data: {
@@ -70,7 +72,8 @@ const registerDB = (id, password, nickname, desc) => {
 //로그인 API
 const loginDB = (id, password) => {
   return function (dispatch, { history }) {
-    axios({
+    api({
+    // axios({
       method: "post",
       url: `/user/login`,
       data: {
@@ -116,7 +119,8 @@ const loginDB = (id, password) => {
 
 const logoutDB = () => {
   return function (dispatch, { history }) {
-    axios({
+    api({
+    // axios({
       method: "delete",
       url: `/user/logout`,
     })
@@ -139,7 +143,8 @@ const logoutDB = () => {
 };
 const getUserDB = (id) => {
   return function (dispatch, { history }) {
-    axios({
+    api({
+    // axios({
       method: "get",
       url: `/user/${id}`,
     })
@@ -167,7 +172,8 @@ const getUserDB = (id) => {
 
 const deleteUserDB = (id) => {
   return function (dispatch, { history }) {
-    axios({
+    api({
+    // axios({
       method: "delete",
       url: `/user`,
     })
@@ -190,7 +196,8 @@ const loginCheckDB = () => {
   return function (dispatch, getState) {
     const _user = localStorage.getItem("user")
     if (_user) {
-      axios({
+      api({
+      // axios({
         method: "get",
         url: `/user/team`,
       })
