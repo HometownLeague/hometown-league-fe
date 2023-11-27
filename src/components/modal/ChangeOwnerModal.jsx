@@ -19,6 +19,7 @@ const customStyles = {
     transform: 'translate(-50%, -50%)',
   },
 };
+const api = process.env.REACT_APP_API_URL;
 const ChangeOwnerModal = ({onSubmit, onClose,teamId}) => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
@@ -40,7 +41,7 @@ const ChangeOwnerModal = ({onSubmit, onClose,teamId}) => {
   }
 
   useEffect(()=>{
-    axios.get(`/team/${teamId}/players`)
+    axios.get(`${api}/team/${teamId}/players`)
     .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamPlayers(response.data.data.users)
@@ -74,7 +75,6 @@ const ChangeOwnerModal = ({onSubmit, onClose,teamId}) => {
           </Player>
         )
         })}
-        {teamPlayers.length===1&&(<Text> 주장으로 바꿀 팀원이 없습니다.</Text>)}
       <Form.Item style={{ textAlign: 'center', marginTop:10}}>
         <Button type="primary" htmlType="submit">
           Change

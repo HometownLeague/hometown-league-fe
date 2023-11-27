@@ -31,9 +31,6 @@ function NavHeader() {
         <StyledLi>
           <StyledLink to="/">커뮤니티</StyledLink>
         </StyledLi>
-        <StyledLi>
-          <StyledLink to="/">랭킹</StyledLink>
-        </StyledLi>
       </StyledUl>
     </Grid>
     </>

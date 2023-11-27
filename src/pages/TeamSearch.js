@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useLocation } from "react-router-dom";
-import { push } from "redux-first-history";
 import Swal from 'sweetalert2';
-import { debounce } from 'lodash';
-import { Select, Spin, Checkbox } from 'antd';
-import { DownOutlined, RightOutlined } from '@ant-design/icons';
+import { Select, Spin } from 'antd';
 import dayjs from 'dayjs';
 
-import { ScrollUpButton } from '../components/elements';
-import { InfinityScroll, CardViewTeam, SearchFilterForm } from "../components"
+import { CardViewTeam, SearchFilterForm } from "../components"
 import { actionCreators as teamActions } from "../redux/teamApi";
 import { Box } from '../assets/images';
-import { useMemo } from 'react';
 const { Option } = Select;
 
 function TeamSearch() {
@@ -46,6 +40,7 @@ function TeamSearch() {
       )
     );
     setSearchedList(filteredList);
+    console.log(filteredList)
     setFilterValue(value);
   }
   return (

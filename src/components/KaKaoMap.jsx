@@ -14,7 +14,6 @@ function KakaoMap({searchplace,setLocation}) {
     const roadAddress = place.road_address_name; // 지번 주소
     let legalDongCode =''
     const content=place.place_name;
-    //FIXME -  legalcode 네트워크 없음
     axios({
       method: "get",
       url: `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lng}&y=${lat}`,

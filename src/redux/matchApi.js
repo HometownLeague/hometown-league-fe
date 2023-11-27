@@ -3,7 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
-
+const api = process.env.REACT_APP_API_URL;
 //Action Types
 const REQUEST_MATCHING = "REQUEST_MATCHING";
 const ACCEPT_MATCHING = "ACCEPT_MATCHING";
@@ -24,7 +24,7 @@ const getDetailMatching = createAction(GET_DETAIL_MATCHING, (matchingRequestId, 
 
 const requestMatchingDB = (id) => {
   return function (dispatch, { history }) {
-    axios.post(`/matching/request`, { teamId: id })
+    axios.post(`${api}/matching/request`, { teamId: id })
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -56,7 +56,7 @@ const requestMatchingDB = (id) => {
 
 const getUserMatchingDB = (id) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/${id}`)
+    axios.get(`${api}/matching/${id}`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -83,7 +83,7 @@ const getUserMatchingDB = (id) => {
 }
 const getDetailMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/${matchingRequestId}/detail`)
+    axios.get(`${api}/matching/${matchingRequestId}/detail`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -112,7 +112,7 @@ const getDetailMatchingDB = (matchingRequestId) => {
 
 const acceptMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.get(`/matching/accept`, matchingRequestId)
+    axios.get(`${api}/matching/accept`, matchingRequestId)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -143,7 +143,7 @@ const acceptMatchingDB = (matchingRequestId) => {
 
 const refuseMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.post(`/matching/refuse`, matchingRequestId)
+    axios.post(`${api}/matching/refuse`, matchingRequestId)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -174,7 +174,7 @@ const refuseMatchingDB = (matchingRequestId) => {
 
 const cancleMatchingDB = (matchingRequestId) => {
   return function (dispatch, { history }) {
-    axios.delete(`/matching/${matchingRequestId}`)
+    axios.delete(`${api}/matching/${matchingRequestId}`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -203,8 +203,35 @@ const cancleMatchingDB = (matchingRequestId) => {
   }
 }
 
-const submitMatchingResultDB = () => {
-
+const submitMatchingResultDB = (matchingRequestId, ourTeamScore, otherTeamScore) => {
+  return function (dispatch, { history }) {
+    axios.post(`${api}/matching/result`, { matchingRequestId: matchingRequestId, ourTeamScore: ourTeamScore, otherTeamScore: otherTeamScore })
+      .then((response) => {
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            Swal.fire({
+              text: "경기 결과 입력 완료",
+              confirmButtonColor: "#FFCC70",
+            })
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
+        }
+      })
+      .catch((err) => {
+        console.log(err, 'error');
+        Swal.fire({
+          text: err.error,
+          confirmButtonColor: '#E3344E',
+          confirmButtonText: err.message,
+        });
+        return;
+      });
+  }
 }
 
 export default handleActions(

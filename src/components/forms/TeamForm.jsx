@@ -34,6 +34,7 @@ const tailLayout = {
     span: 16,
   },
 };
+const api = process.env.REACT_APP_API_URL;
 function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
@@ -88,7 +89,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
     if (form.getFieldError('name').length === 0 && form.getFieldValue('name')) {
       axios({
         method: "get",
-        url: `/team/is-duplicate/${form.getFieldValue('name')}`,
+        url: `${api}/team/is-duplicate/${form.getFieldValue('name')}`,
       })
         .then((response) => {
           if (response.data.data === 'Y') {
@@ -159,7 +160,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
       name: values.name,
       kind: 1,
       description: values.description,
-      // ciPath:values. teamLogo
+      ciPath:values.teamLogo
     };
 
     // 시간 데이터
@@ -174,7 +175,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
    
     if (isUpdate) {
       // 업데이트 요청
-      dispatch(teamAction.updateTeamDB( basicData, timeData, locationData ));
+      dispatch(teamAction.updateTeamDB( basicData, timeData, locationData,values.teamLogo ));
       onClose();
     } else {
       // 새로운 팀 생성 요청
@@ -183,9 +184,10 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
         location: values.locationList,
         time: formattedTime,
         owner: user.id,
+        ciPath:values.teamLogo
       };
       console.log(data)
-      dispatch(teamAction.createTeamDB(data));
+      dispatch(teamAction.createTeamDB(data,values.teamLogo));
       onClose();
       //window.location.reload();
     }
@@ -193,7 +195,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);
   };
-  useEffect(()=>{console.log(teamData)},[])
+  
   return (
   <>
     <Form
@@ -358,7 +360,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
     </Form.Item>
 
     {/* //FIXME - 사진 url 지정 */}
-    <Form.Item label="팀 로고" valuePropName="fileList" getValueFromEvent={normFile}>
+    <Form.Item label="팀 로고" valuePropName="fileList" getValueFromEvent={normFile} name="teamLogo">
     <Upload name="logo" action="/upload.do" listType="picture" >
       <Button icon={<UploadOutlined />}>Click to upload</Button>
       </Upload>

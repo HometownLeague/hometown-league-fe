@@ -3,10 +3,7 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
-
-//import { API_URL } from '../lib/constants'
-
-
+const api = process.env.REACT_APP_API_URL;
 //Action Types
 const SET_USER = "SET_USER";
 const GET_USER = "GET_USER";
@@ -30,7 +27,7 @@ const registerDB = (id, password, nickname, desc) => {
   return function (dispatch, { history }) {
     axios({
       method: "post",
-      url: `/user/join`,
+      url: `${api}/user/join`,
       data: {
         id: id,
         password: password,
@@ -72,7 +69,7 @@ const loginDB = (id, password) => {
   return function (dispatch, { history }) {
     axios({
       method: "post",
-      url: `/user/login`,
+      url: `${api}/user/login`,
       data: {
         id: id,
         password: password,
@@ -118,7 +115,7 @@ const logoutDB = () => {
   return function (dispatch, { history }) {
     axios({
       method: "delete",
-      url: `/user/logout`,
+      url: `${api}/user/logout`,
     })
       .then((response) => {
         // axios.defaults.headers.common["authorization"] = null;
@@ -141,7 +138,7 @@ const getUserDB = (id) => {
   return function (dispatch, { history }) {
     axios({
       method: "get",
-      url: `/user/${id}`,
+      url: `${api}/user/${id}`,
     })
       .then((response) => {
         dispatch(
@@ -169,7 +166,7 @@ const deleteUserDB = (id) => {
   return function (dispatch, { history }) {
     axios({
       method: "delete",
-      url: `/user`,
+      url: `${api}/user`,
     })
       .then((response) => {
         dispatch(deleteUser());
@@ -192,7 +189,7 @@ const loginCheckDB = () => {
     if (_user) {
       axios({
         method: "get",
-        url: `/user/team`,
+        url: `${api}/user/team`,
       })
         .then((response) => {
           if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {

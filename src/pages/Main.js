@@ -8,10 +8,7 @@ import Swal from 'sweetalert2';
 
 function Main() {
   const user = useSelector((state) => state.user.user);
-
   const location = useLocation();
-
-  // 메인 페이지
   const dispatch = useDispatch();
 
   const is_user = localStorage.getItem("user") ? true : false;
@@ -26,8 +23,6 @@ function Main() {
   const handleClick = () => {
     setOpen(true);
   }
-  useEffect(() => {
-  }, []);
 
   return (
     <>
@@ -44,19 +39,10 @@ function Main() {
       </Wrap>
       <Wrap>
         <TitleContainer>
-          <Title>이적시장 선수 찾기</Title>
+          <Title>랭킹 리스트</Title>
         </TitleContainer>
         <EmptyList>
-          <p>팀을 위한 선수를 찾으세요!</p>
-          {user ? (
-            <StlyedLink to="/">
-              영입 하러 가기 {'>'}
-            </StlyedLink>
-          ) : (
-            <StlyedLink to="/">
-              로그인하러 가기 {'>'}
-            </StlyedLink>
-          )}
+
         </EmptyList>
       </Wrap>
     </>

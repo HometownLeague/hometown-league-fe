@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
 import { actionCreators as userAction } from "./userApi"
+const api = process.env.REACT_APP_API_URL;
 //Action Types
 const GET_QUERY_TEAM = "GET_QUERY_TEAM";
 const GET_TEAM_DETAIL = "GET_TEAM_DETAIL";
@@ -40,7 +41,7 @@ const initialState = {
 //SECTION - 유저의 팀 정보 조회. 쿠키로 로그인 세션이 넘어감.
 const getUserTeamsDB = () => {
   return function (dispatch, { history }) {
-    axios.get(`/user/team`)
+    axios.get(`${api}/user/team`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(getUserTeams(response.data.data));
@@ -68,7 +69,7 @@ const getTeamDetailDB = (id) => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
     axios
-      .get(`/team/${id}`)
+      .get(`${api}/team/${id}`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(getTeamDetail(response.data.data));
@@ -91,10 +92,10 @@ const getTeamDetailDB = (id) => {
   };
 };
 //SECTION -팀 생성
-const createTeamDB = (teamInfo) => {
+const createTeamDB = (teamInfo, img) => {
   return function (dispatch, { history }) {
     axios
-      .post(`/team`, teamInfo)
+      .post(`${api}/team`, teamInfo)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -114,6 +115,7 @@ const createTeamDB = (teamInfo) => {
       })
       .catch((err) => console.log(err));
   };
+
 };
 
 const deleteTeamDB = (id) => {
@@ -129,7 +131,7 @@ const deleteTeamDB = (id) => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`/team/${id}`)
+          .delete(`${api}/team/${id}`)
           .then((response) => {
             switch (response.data.responseCode.code) {
               case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -153,7 +155,7 @@ const deleteTeamDB = (id) => {
 const updateTeamDB = (bData, tData, lData) => {
   return function (dispatch, { history }) {
     axios
-      .patch(`/team`, bData)
+      .patch(`${api}/team`, bData)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -170,7 +172,7 @@ const updateTeamDB = (bData, tData, lData) => {
       })
       .catch((err) => console.log(err));
     axios
-      .put(`/team/play-time`, tData)
+      .put(`${api}/team/play-time`, tData)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -187,7 +189,7 @@ const updateTeamDB = (bData, tData, lData) => {
       })
       .catch((err) => console.log(err));
     axios
-      .put(`/team/play-location`, lData)
+      .put(`${api}/team/play-location`, lData)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -207,13 +209,14 @@ const updateTeamDB = (bData, tData, lData) => {
         }
       })
       .catch((err) => console.log(err));
+
   };
 };
 //팀에 멤버 추가하기
 const addMemberDB = (teamId, joinUserId) => {
   return function (dispatch, { history }) {
     axios
-      .post(`/team/accept`, {
+      .post(`${api}/team/accept`, {
         teamId: teamId,
         joinRequestId: joinUserId
       })
@@ -249,7 +252,7 @@ const leaveTeamDB = (teamId) => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`/team/`)
+          .delete(`${api}/team/`)
           .then((response) => {
             switch (response.data.responseCode.code) {
               case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -274,7 +277,7 @@ const updateTeamOwnerDB = (teamId, newOwnerId) => {
   return function (dispatch, { history }) {
     console.log(teamId, newOwnerId)
     axios
-      .patch(`/team/${teamId}/owner`, {
+      .patch(`${api}/team/${teamId}/owner`, {
         userId: newOwnerId
       })
       .then((response) => {
@@ -299,7 +302,7 @@ const getSearchAllTeamDB = () => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
     axios
-      .get(`/team?name=""`)
+      .get(`${api}/team?`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(getSearchAllTeam(response.data.data));
@@ -326,7 +329,7 @@ const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, 
   return function (dispatch, { history }) {
     dispatch(loading(true));
     axios
-      .get(`/team?${province ? `address-si=` + province : ''}${city ? `&address-gungu=` + city : ''}&${fromScore ? `&from-score=` + fromScore : ''}${toScore ? `&to-score=` + toScore : ''}${dayOfWeek ? `&day-of-Week=` + dayOfWeek : ''}${time ? `&time=` + time : ''}${keyword ? `&name=` + keyword : ''}`)
+      .get(`${api}/team?${province ? `address-si=` + province : ''}${city ? `&address-gungu=` + city : ''}&${fromScore ? `&from-score=` + fromScore : ''}${toScore ? `&to-score=` + toScore : ''}${dayOfWeek ? `&day-of-Week=` + dayOfWeek : ''}${time ? `&time=` + time : ''}${keyword ? `&name=` + keyword : ''}`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(getSearchTeam(response.data.data));
@@ -418,7 +421,6 @@ export default handleActions(
     [GET_QUERY_TEAM]: (state, action) =>
       produce(state, (draft) => {
         draft.filteredTeamlist = action.payload.filteredTeamlist;
-        console.log(action.payload)
         draft.isLoading = false;
       }),
     [LOADING]: (state, action) =>

@@ -20,6 +20,7 @@ import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
 const { Sider, Content } = Layout;
+const api = process.env.REACT_APP_API_URL;
 
 function TeamProfile() {
   const params = useParams()
@@ -64,7 +65,7 @@ function TeamProfile() {
     // setTeamData(data[0])
     axios({
       method: "get",
-      url: `/team/${teamId}`,
+      url: `${api}/team/${teamId}`,
     })
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
@@ -79,7 +80,7 @@ function TeamProfile() {
       .catch((err) => console.log(err));
     axios({
       method: "get",
-      url: `/team/${teamId}/players`,
+      url: `${api}/team/${teamId}/players`,
     })
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
