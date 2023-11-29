@@ -99,11 +99,27 @@ const createTeamDB = (teamInfo, img) => {
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            dispatch(createTeam(teamInfo));
-            Swal.fire({
-              text: "새로운 팀을 만들었습니다!",
-              confirmButtonColor: "#FFCC70",
-            })
+            axios
+              .patch(`${api}/image/team`, { imageFile: img, id: response.data.data.id })
+              .then((response) => {
+                console.log(img, response.data.data.id)
+                switch (response.data.responseCode.code) {
+                  case process.env.REACT_APP_API_RES_CODE_SUCESS:
+                    dispatch(createTeam(teamInfo));
+                    Swal.fire({
+                      text: "새로운 팀을 만들었습니다!",
+                      confirmButtonColor: "#FFCC70",
+                    })
+                    break;
+                  default:
+                    Swal.fire({
+                      text: response.data.responseCode.message,
+                      confirmButtonColor: "#E3344E",
+                    });
+                    break;
+                }
+              })
+              .catch((err) => console.log(err));
             break;
           default:
             Swal.fire({

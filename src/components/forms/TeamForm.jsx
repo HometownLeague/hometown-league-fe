@@ -5,16 +5,17 @@ import dayjs from "dayjs";
 
 import styled from "styled-components";
 import { useDispatch,useSelector } from "react-redux";
-import { CloseOutlined ,UploadOutlined,MinusCircleOutlined,PlusOutlined} from '@ant-design/icons';
+import { CloseOutlined ,UploadOutlined,MinusCircleOutlined,PlusOutlined, LoadingOutlined} from '@ant-design/icons';
 import {
   Button,
   Form,
   Input,
   Select,
-  Upload,
   Space,
-  TimePicker,Typography 
+  TimePicker,
+  Typography,
 } from 'antd';
+
 import useModals from '../modal/useModal';
 import {modals} from '../modal/Modals';
 import { Text } from "../elements";
@@ -35,28 +36,15 @@ const tailLayout = {
   },
 };
 const api = process.env.REACT_APP_API_URL;
+
 function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const userTeam=useSelector((state) => state.team.userTeams);
   const [initialFormValue,setInitialFormValue]=useState(teamData?teamData:{})
   const [locationList,setLocationList]=useState([]);
-  const alluserteam = useSelector((state) => state.team.userTeams);
-
+  const [logofile,setLogofile]=useState(null);
   const { TextArea } = Input;
   const [form] = Form.useForm();
-
-  //파일 개수 제한
-  const normFile = (e) => {
-    console.log("Upload event:", e);
-    let fileList = e.fileList;
-    fileList = fileList.slice(-1);
-
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && fileList;
-  };
 
   // teamname 유효성 검사
   // length 2~20, english, korean, number
@@ -148,8 +136,24 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
       locationList: locationList,
     });
   };
+  //로고 이미지 업로드
+  const onChangeImgFile =(e) => {
+    e.preventDefault();
+    if(e.target.files){
+      const uploadFile = e.target.files[0]
+      console.log(uploadFile)
+      setLogofile(uploadFile);
+    }
+    
+    // const formData = new FormData();
+    // formData.append('img', img);
+    // console.log(formData) // FormData {}
+    // for (const keyValue of formData) console.log(keyValue); // ["img", File] File은 객체
+}
   // submit함수
   const handleClickSubmit =(values) => {
+    const formData = new FormData()
+    formData.append('files',logofile);
     const formattedTime = values.time.map((item) => ({
       dayOfWeek: item.dayOfWeek,
       playTimeFrom: item.playTimeFrom.format('HHmm'),
@@ -175,7 +179,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
    
     if (isUpdate) {
       // 업데이트 요청
-      dispatch(teamAction.updateTeamDB( basicData, timeData, locationData,values.teamLogo ));
+      dispatch(teamAction.updateTeamDB( basicData, timeData, locationData,formData));
       onClose();
     } else {
       // 새로운 팀 생성 요청
@@ -187,7 +191,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
         ciPath:values.teamLogo
       };
       console.log(data)
-      dispatch(teamAction.createTeamDB(data,values.teamLogo));
+      dispatch(teamAction.createTeamDB(data,formData));
       onClose();
       //window.location.reload();
     }
@@ -360,10 +364,15 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
     </Form.Item>
 
     {/* //FIXME - 사진 url 지정 */}
-    <Form.Item label="팀 로고" valuePropName="fileList" getValueFromEvent={normFile} name="teamLogo">
-    <Upload name="logo" action="/upload.do" listType="picture" >
-      <Button icon={<UploadOutlined />}>Click to upload</Button>
-      </Upload>
+    <Form.Item label="팀 로고" name="teamLogo">
+     {/* <Upload  name="avatar" listType="picture-circle" action= '' beforeUpload={beforeUpload} maxCount={1} >
+      uploadButton
+      </Upload> */}
+      <input type='file' 
+      accept='image/*' 
+      name='logoImg' 
+      onChange={onChangeImgFile}>
+  </input>
     </Form.Item>
     <Form.Item>
       <Button type="primary" htmlType="submit">

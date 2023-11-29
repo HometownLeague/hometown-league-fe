@@ -8,13 +8,13 @@ import { createBrowserHistory } from "history";
 import storage from 'redux-persist/lib/storage';
 import storageSession from 'redux-persist/lib/storage/session';
 import { persistReducer } from "redux-persist";
-
+import axios from 'axios';
 const {
   createReduxHistory,
   routerMiddleware,
   routerReducer
 } = createReduxHistoryContext({ history: createBrowserHistory() });
-
+axios.defaults.withCredentials = true;
 const env = process.env.NODE_ENV;
 //devTools 설정
 const composeEnhancers =

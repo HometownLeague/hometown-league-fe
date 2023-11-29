@@ -13,7 +13,7 @@ const LOGIN_CHECK = "LOGIN_CHECK";
 //initialState
 const initialState = {
   user: null,
-  is_login: false,
+  isLogin: false,
 };
 
 //Action Creator
