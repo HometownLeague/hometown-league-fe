@@ -13,11 +13,6 @@ function App() {
   const user = useSelector((state) => state.user.user);
   const isLogin = useSelector((state) => state.user.isLogin);
 
-  useEffect(() => {
-    if (isLogin && user === null) {
-      dispatch(userActions.loginCheckDB())
-    }
-  }, [])
   return (
     <>
       <Header />

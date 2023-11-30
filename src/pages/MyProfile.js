@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
+
 import { UserInfo } from '../components';
+import { actionCreators as userAction } from "../redux/userApi";
 
 function MyProfile(props) {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
+  useEffect(() => {
 
+    dispatch(userAction.getUserDB(user.id));
+  }, [])
   return (
     <Bg>
       <Container>

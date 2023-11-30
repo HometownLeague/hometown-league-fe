@@ -3,6 +3,8 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
+import { actionCreators as userAction } from "./userApi"
+
 const api = process.env.REACT_APP_API_URL;
 //Action Types
 const REQUEST_MATCHING = "REQUEST_MATCHING";
@@ -34,6 +36,15 @@ const requestMatchingDB = (id) => {
             })
             dispatch(push("/myMatching"));
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
@@ -62,6 +73,15 @@ const getUserMatchingDB = (id) => {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
             dispatch(getUserMatching(response.data.data))
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
@@ -89,6 +109,15 @@ const getDetailMatchingDB = (matchingRequestId) => {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
             const data = response.data.data
             dispatch(getDetailMatching(matchingRequestId, data));
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
             break;
           default:
             Swal.fire({
@@ -121,6 +150,15 @@ const acceptMatchingDB = (matchingRequestId) => {
               confirmButtonColor: "#FFCC70",
             })
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
@@ -151,6 +189,15 @@ const refuseMatchingDB = (matchingRequestId) => {
               text: "매칭을 거절하셨습니다",
               confirmButtonColor: "#FFCC70",
             })
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
             break;
           default:
             Swal.fire({
@@ -183,6 +230,15 @@ const cancleMatchingDB = (matchingRequestId) => {
               confirmButtonColor: "#FFCC70",
             })
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
@@ -213,6 +269,15 @@ const submitMatchingResultDB = (matchingRequestId, ourTeamScore, otherTeamScore)
               text: "경기 결과 입력 완료",
               confirmButtonColor: "#FFCC70",
             })
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
             break;
           default:
             Swal.fire({

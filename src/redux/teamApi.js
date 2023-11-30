@@ -43,19 +43,25 @@ const getUserTeamsDB = () => {
   return function (dispatch, { history }) {
     axios.get(`${api}/user/team`)
       .then((response) => {
-        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
-          dispatch(getUserTeams(response.data.data));
-        } else if (response.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
-          dispatch(replace("/"));
-          Swal.fire({
-            text: "세션 정보가 없습니다.",
-            confirmButtonColor: "rgb(118, 118, 118)",
-          });
-        } else {
-          Swal.fire({
-            text: "나의 팀 불러오기에 실패했습니다. ",
-            confirmButtonColor: "#E3344E",
-          });
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            dispatch(getUserTeams(response.data.data));
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
+          default:
+            Swal.fire({
+              text: "나의 팀 불러오기에 실패했습니다",
+              confirmButtonColor: "#E3344E",
+            });
+            break;
         }
       })
       .catch((error) => {
@@ -71,21 +77,25 @@ const getTeamDetailDB = (id) => {
     axios
       .get(`${api}/team/${id}`)
       .then((response) => {
-        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
-          dispatch(getTeamDetail(response.data.data));
-        }
-        else if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
-          dispatch(replace("/"));
-          dispatch(userAction.loginCheckDB());
-          Swal.fire({
-            text: "세션 정보가 없습니다.",
-            confirmButtonColor: "rgb(118, 118, 118)",
-          });
-        } else {
-          Swal.fire({
-            text: "팀 상세 정보를 불러오기에 실패했습니다. ",
-            confirmButtonColor: "#E3344E",
-          });
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            dispatch(getTeamDetail(response.data.data));
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
         }
       })
       .catch((err) => console.log(err));
@@ -121,6 +131,15 @@ const createTeamDB = (teamInfo, img) => {
               })
               .catch((err) => console.log(err));
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
@@ -155,6 +174,15 @@ const deleteTeamDB = (id) => {
                 dispatch(deleteTeam(id));
                 dispatch(replace("/teamManagement"));
                 break;
+              case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+                localStorage.clear()
+                dispatch(userAction.logOut())
+                Swal.fire({
+                  text: "로그인 세션이 만료되었습니다",
+                  confirmButtonColor: '#E3344E',
+                  confirmButtonText: '확인',
+                });
+                break;
               default:
                 Swal.fire({
                   text: response.data.responseCode.message,
@@ -177,12 +205,20 @@ const updateTeamDB = (bData, tData, lData) => {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
             dispatch(updateTeam(response.data.data));
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            dispatch(push("/"));
             break;
         }
       })
@@ -194,12 +230,20 @@ const updateTeamDB = (bData, tData, lData) => {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
             dispatch(updateTeam(response.data.data));
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            dispatch(push("/"));
             break;
         }
       })
@@ -215,12 +259,20 @@ const updateTeamDB = (bData, tData, lData) => {
               confirmButtonColor: "#FFCC70",
             })
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            dispatch(push("/"));
             break;
         }
       })
@@ -239,15 +291,23 @@ const addMemberDB = (teamId, joinUserId) => {
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            //dispatch(addMember(team));
             Swal.fire("가입 완료!");
+
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
             break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
               confirmButtonColor: "#E3344E",
             });
-            dispatch(push("/"));
             break;
         }
       })
@@ -276,10 +336,19 @@ const leaveTeamDB = (teamId) => {
                 dispatch(leaveTeam(teamId));
                 history.replace("/teamManagement");
                 break;
+              case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+                localStorage.clear()
+                dispatch(userAction.logOut())
+                Swal.fire({
+                  text: "로그인 세션이 만료되었습니다",
+                  confirmButtonColor: '#E3344E',
+                  confirmButtonText: '확인',
+                });
+                break;
               default:
                 Swal.fire({
                   text: response.data.responseCode.message,
-                  confirmButtonColor: "#FFCC70",
+                  confirmButtonColor: "#E3344E",
                 });
                 break;
             }
@@ -302,6 +371,15 @@ const updateTeamOwnerDB = (teamId, newOwnerId) => {
             dispatch(updateTeamOwner(teamId, newOwnerId));
             Swal.fire("주장 변경 완료");
             break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
           default:
             Swal.fire({
               text: response.data.responseCode.message,
@@ -320,20 +398,25 @@ const getSearchAllTeamDB = () => {
     axios
       .get(`${api}/team?`)
       .then((response) => {
-        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
-          dispatch(getSearchAllTeam(response.data.data));
-        }
-        else if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
-          dispatch(replace("/"));
-          Swal.fire({
-            text: "로그인 만료되었습니다.",
-            confirmButtonColor: "rgb(118, 118, 118)",
-          });
-        } else {
-          Swal.fire({
-            text: "팀 검색에 실패했습니다. ",
-            confirmButtonColor: "#E3344E",
-          });
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            dispatch(getSearchAllTeam(response.data.data));
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
         }
       })
       .catch((err) => console.log(err));
@@ -347,26 +430,30 @@ const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, 
     axios
       .get(`${api}/team?${province ? `address-si=` + province : ''}${city ? `&address-gungu=` + city : ''}&${fromScore ? `&from-score=` + fromScore : ''}${toScore ? `&to-score=` + toScore : ''}${dayOfWeek ? `&day-of-Week=` + dayOfWeek : ''}${time ? `&time=` + time : ''}${keyword ? `&name=` + keyword : ''}`)
       .then((response) => {
-        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
-          dispatch(getSearchTeam(response.data.data));
-        }
-        else if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
-          dispatch(replace("/"));
-          Swal.fire({
-            text: "로그인 만료되었습니다.",
-            confirmButtonColor: "rgb(118, 118, 118)",
-          });
-        } else {
-          Swal.fire({
-            text: "팀 검색에 실패했습니다. ",
-            confirmButtonColor: "#E3344E",
-          });
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            dispatch(getSearchTeam(response.data.data));
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
         }
       })
       .catch((err) => console.log(err));
   };
 };
-
 
 //draft는 현재 값이 복사된 새로운 state  
 export default handleActions(

@@ -3,13 +3,15 @@ import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
+
 const api = process.env.REACT_APP_API_URL;
+
 //Action Types
 const SET_USER = "SET_USER";
 const GET_USER = "GET_USER";
 const DELETE_USER = 'DELETE_USER';
 const LOG_OUT = "LOG_OUT";
-const LOGIN_CHECK = "LOGIN_CHECK";
+
 //initialState
 const initialState = {
   user: null,
@@ -21,21 +23,17 @@ const logOut = createAction(LOG_OUT, (user) => ({ user }));
 const setUser = createAction(SET_USER, (user) => ({ user }));
 const getUser = createAction(GET_USER, (user) => ({ user }));
 const deleteUser = createAction(DELETE_USER, (user) => ({ user }));
-const loginCheck = createAction(LOGIN_CHECK, (user) => ({ user }))
 //회원가입 API
 const registerDB = (id, password, nickname, desc) => {
   return function (dispatch, { history }) {
-    axios({
-      method: "post",
-      url: `${api}/user/join`,
-      data: {
+    axios
+      .post(`${api}/user/join`, {
         id: id,
         password: password,
         nickname: nickname,
         description: desc,
       },
-      headers: { 'X-Requested-With': 'XMLHttpRequest' }
-    })
+        { 'X-Requested-With': 'XMLHttpRequest' })
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           Swal.fire({
@@ -67,29 +65,15 @@ const registerDB = (id, password, nickname, desc) => {
 //로그인 API
 const loginDB = (id, password) => {
   return function (dispatch, { history }) {
-    axios({
-      method: "post",
-      url: `${api}/user/login`,
-      data: {
+    axios
+      .post(`${api}/user/login`, {
         id: id,
         password: password,
-      },
-    })
+      })
       .then((response) => {
 
-        if (response.data.responseCode.code === "0000") {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(setUser(response.data.data));
-          //TODO - 로그인 토큰 설정. 쿠키 없음 항상
-          // const cookies = response.headers['set-cookie'];
-          // let accessToken = null;
-          // if (cookies && cookies.length > 0) {
-          //   cookies.forEach(cookie => {
-          //     if (cookie.startsWith('SESSION=')) {
-          //       accessToken = cookie.split(';')[0].replace('SESSION=', '');
-          //     }
-          //   });
-          // }
-          // console.log("accessToken", accessToken)
           localStorage.setItem("user", JSON.stringify(response.data.data))
           //localStorage.setItem("loginToken", accessToken)
           // axios.defaults.headers.common[
@@ -113,10 +97,7 @@ const loginDB = (id, password) => {
 
 const logoutDB = () => {
   return function (dispatch, { history }) {
-    axios({
-      method: "delete",
-      url: `${api}/user/logout`,
-    })
+    axios.delete(`${api}/user/logout`)
       .then((response) => {
         // axios.defaults.headers.common["authorization"] = null;
         // delete axios.defaults.headers.common["authorization"];
@@ -134,6 +115,7 @@ const logoutDB = () => {
     dispatch(replace("/"));
   };
 };
+
 const getUserDB = (id) => {
   return function (dispatch, { history }) {
     axios({
@@ -141,33 +123,44 @@ const getUserDB = (id) => {
       url: `${api}/user/${id}`,
     })
       .then((response) => {
-        dispatch(
-          getUser({
-            id: response.data.data.id,
-            nickname: response.data.data.nickname,
-            description: response.data.description,
-            // team: response.data.team,
-          }),
-        );
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            dispatch(
+              getUser({
+                id: response.data.data.id,
+                nickname: response.data.data.nickname,
+                description: response.data.description,
+                // team: response.data.team,
+              }),
+            );
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
+        }
       })
-      .catch((err) => {
-        console.log(err, 'error');
-        Swal.fire({
-          text: err.error,
-          confirmButtonColor: '#E3344E',
-          confirmButtonText: '확인',
-        });
-        return;
+      .catch((error) => {
+        console.log(error, error.toJSON());
       });
   };
 };
 
 const deleteUserDB = (id) => {
   return function (dispatch, { history }) {
-    axios({
-      method: "delete",
-      url: `${api}/user`,
-    })
+    axios
+      .delete(`${api}/user`)
       .then((response) => {
         dispatch(deleteUser());
       })
@@ -176,36 +169,6 @@ const deleteUserDB = (id) => {
         dispatch(logOut());
         dispatch(replace("/"));
       });
-  };
-};
-
-
-//로그인 유지 API
-//클라이언트 로컬저장소에 토큰이 존재하는 경우
-//서버에서 토큰을 받아 유효성 검증 후 유효하다면 유저 정보를 주어 자동 로그인
-const loginCheckDB = () => {
-  return function (dispatch, getState) {
-    const _user = localStorage.getItem("user")
-    if (_user) {
-      axios({
-        method: "get",
-        url: `${api}/user/team`,
-      })
-        .then((response) => {
-          if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_NOT_SESSION) {
-            localStorage.clear()
-            dispatch(logOut())
-            dispatch(replace("/"));
-          }
-        })
-        .catch((err) => {
-          console.log(err, 'error');
-          localStorage.clear()
-          dispatch(logOut())
-          dispatch(replace("/"));
-          return;
-        });
-    }
   };
 };
 
@@ -243,7 +206,6 @@ const actionCreators = {
   loginDB,
   deleteUser,
   deleteUserDB,
-  loginCheckDB
 };
 
 export { actionCreators };
