@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
 import { actionCreators as userAction } from "./userApi"
-const api = process.env.REACT_APP_API_URL;
+const api = ""
 //Action Types
 const GET_QUERY_TEAM = "GET_QUERY_TEAM";
 const GET_TEAM_DETAIL = "GET_TEAM_DETAIL";

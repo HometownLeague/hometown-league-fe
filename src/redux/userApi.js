@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
 
-const api = process.env.REACT_APP_API_URL;
+const api = ""
 
 //Action Types
 const SET_USER = "SET_USER";

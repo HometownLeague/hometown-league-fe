@@ -20,7 +20,7 @@ import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
 const { Sider, Content } = Layout;
-const api = process.env.REACT_APP_API_URL;
+const api = ""
 
 function TeamProfile() {
   const params = useParams()

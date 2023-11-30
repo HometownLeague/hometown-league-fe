@@ -12,7 +12,7 @@ import useInput from '../components/useInput';
 import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
-const api = process.env.REACT_APP_API_URL;
+const api = ""
 
 const Join = () => {
   const dispatch = useDispatch();

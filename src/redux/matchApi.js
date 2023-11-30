@@ -5,7 +5,7 @@ import axios from "axios";
 import { push, replace } from "redux-first-history";
 import { actionCreators as userAction } from "./userApi"
 
-const api = process.env.REACT_APP_API_URL;
+const api = ""
 //Action Types
 const REQUEST_MATCHING = "REQUEST_MATCHING";
 const ACCEPT_MATCHING = "ACCEPT_MATCHING";
