@@ -1,6 +1,7 @@
 /* global kakao */
 import React, { useState,useEffect,useRef } from 'react';
 import axios from 'axios';
+
 function KakaoMap({searchplace,setLocation}) {
   const mapRef = useRef(null);
   const [markers, setMarkers] = useState([]); // 마커 배열 추가
