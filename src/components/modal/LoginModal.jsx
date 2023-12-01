@@ -27,7 +27,7 @@ const LoginModal = ({onSubmit, onClose }) => {
 
     const handleClickCancel = () => {
       onClose();
-      if (window.location.pathname !== "/join"
+      if (window.location.pathname !== "/join"&&window.location.pathname !== "/searchTeam"
       ) {
         history.replace("/")
       }

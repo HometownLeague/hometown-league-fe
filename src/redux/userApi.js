@@ -2,9 +2,10 @@ import { createAction, handleAction, handleActions } from "redux-actions";
 import { produce } from "immer";
 import Swal from 'sweetalert2';
 import axios from "axios";
+import { useCookies } from 'react-cookie';
 import { push, replace } from "redux-first-history";
 
-const api = ""
+const api = process.env.REACT_APP_API_URL
 
 //Action Types
 const SET_USER = "SET_USER";
@@ -75,7 +76,18 @@ const loginDB = (id, password) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           dispatch(setUser(response.data.data));
           localStorage.setItem("user", JSON.stringify(response.data.data))
-          //localStorage.setItem("loginToken", accessToken)
+          // const cookies = response.headers['set-cookie'];
+          // let accessToken = null;
+          // if (cookies && cookies.length > 0) {
+          //   cookies.forEach(cookie => {
+          //     if (cookie.startsWith('SESSION=')) {
+          //       accessToken = cookie.split(';')[0].replace('SESSION=', '');
+          //     }
+          //   });
+          // }
+          // console.log("accessToken", accessToken)
+          // console.log("쿠키", cookies)
+          // localStorage.setItem("loginToken", accessToken)
           // axios.defaults.headers.common[
           //   'authorization'
           // ] = `Bearer ${accessToken}`;
@@ -99,8 +111,11 @@ const logoutDB = () => {
   return function (dispatch, { history }) {
     axios.delete(`${api}/user/logout`)
       .then((response) => {
-        // axios.defaults.headers.common["authorization"] = null;
-        // delete axios.defaults.headers.common["authorization"];
+        axios.defaults.headers.common["authorization"] = null;
+        delete axios.defaults.headers.common["authorization"];
+        localStorage.clear()
+        dispatch(logOut())
+        dispatch(replace("/"));
         Swal.fire({
           text: '로그아웃 되었습니다.',
           confirmButtonColor: '#FFCC70',
@@ -110,9 +125,7 @@ const logoutDB = () => {
       .catch((error) => {
         console.log(error.responseponse);
       });
-    localStorage.clear()
-    dispatch(logOut())
-    dispatch(replace("/"));
+
   };
 };
 

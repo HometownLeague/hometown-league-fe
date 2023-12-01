@@ -4,7 +4,7 @@ import Swal from 'sweetalert2';
 import axios from "axios";
 import { push, replace } from "redux-first-history";
 import { actionCreators as userAction } from "./userApi"
-const api = ""
+const api = process.env.REACT_APP_API_URL
 //Action Types
 const GET_QUERY_TEAM = "GET_QUERY_TEAM";
 const GET_TEAM_DETAIL = "GET_TEAM_DETAIL";
@@ -41,7 +41,7 @@ const initialState = {
 //SECTION - 유저의 팀 정보 조회. 쿠키로 로그인 세션이 넘어감.
 const getUserTeamsDB = () => {
   return function (dispatch, { history }) {
-    axios.get(`${api}/user/team`)
+    axios.get(`/user/team`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
@@ -314,6 +314,39 @@ const addMemberDB = (teamId, joinUserId) => {
       .catch((err) => console.log(err));
   };
 };
+//!SECTION 팀에 가입 요청 보내기
+const joinTeamRequestDB = (teamId) => {
+  return function (dispatch, { history }) {
+    axios
+      .post(`${api}/team/join-request`, {
+        teamId: teamId
+      })
+      .then((response) => {
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            Swal.fire("가입 완료!");
+
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+};
 //팀 탈퇴하기
 const leaveTeamDB = (teamId) => {
   return function (dispatch, { history }) {
@@ -547,6 +580,7 @@ const actionCreators = {
   deleteTeamDB,
   addMember,
   addMemberDB,
+  joinTeamRequestDB,
   updateTeamDB,
   updateTeamOwnerDB,
   leaveTeamDB,

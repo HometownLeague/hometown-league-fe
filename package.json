@@ -23,6 +23,7 @@
     "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-cookie": "^6.1.0",
+    "react-cookies": "^0.1.1",
     "react-dom": "^18.2.0",
     "react-kakao-maps-sdk": "^1.1.21",
     "react-modal": "^3.16.1",
@@ -46,7 +47,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
- "proxy": "http://218.232.175.4:49156",
+  "proxy": "http://218.232.175.4:49156",
   "eslintConfig": {
     "extends": [
       "react-app",

@@ -8,6 +8,8 @@ import dayjs from 'dayjs';
 import { CardViewTeam, SearchFilterForm } from "../components"
 import { actionCreators as teamActions } from "../redux/teamApi";
 import { Box } from '../assets/images';
+import useModals from '../components/modal/useModal';
+import { modals } from '../components/modal/Modals';
 const { Option } = Select;
 
 function TeamSearch() {
@@ -28,6 +30,12 @@ function TeamSearch() {
   let filteredList = useSelector((state) => state.team.filteredTeamlist);
   const [searchedList, setSearchedList] = useState([]);// 보여줄 리스트
   const [filterValue, setFilterValue] = useState();
+
+  const { openModal } = useModals();
+  const openLoginModal = () => {
+    openModal(modals.loginModal, { onsubmit: (value) => { console.log(value) } });
+  };
+
   useEffect(() => {
     //제일 처음
     dispatch(teamActions.getSearchAllTeamDB());
