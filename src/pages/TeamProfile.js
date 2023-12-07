@@ -114,7 +114,7 @@ function TeamProfile() {
               <Text size="20px" color='black' bold title>
                 {teamData.name}
               </Text>
-              {user && teamData.ownerId == user.id && (
+              {user && teamData.ownerId === user.id && (
                 <FontAwesomeIcon icon={faPenToSquare} size='xl' color='black' onClick={openUpdateTeamModal} />
               )}
             </TeamNameBox>

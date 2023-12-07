@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
-import { Select, Spin } from 'antd';
+import { Select, Spin, Pagination } from 'antd';
 import dayjs from 'dayjs';
 
 import { CardViewTeam, SearchFilterForm } from "../components"
@@ -26,10 +26,14 @@ function TeamSearch() {
     setSortStatus(value);
   };
   // 게시물 정보
-  const allTeam = useSelector((state) => state.team.allTeamList);
-  let filteredList = useSelector((state) => state.team.filteredTeamlist);
-  const [searchedList, setSearchedList] = useState([]);// 보여줄 리스트
-  const [filterValue, setFilterValue] = useState();
+  let filteredList = useSelector((state) => state.team.searchedTeamList);
+  // 페이지 정보
+  const teamTotalNum = useSelector((state) => state.team.teamTotalNum);
+  // // 게시물 조회 로딩 정보
+  // const view_loading = useSelector((state) => state.post.view_loading);
+
+  const [filterValue, setFilterValue] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { openModal } = useModals();
   const openLoginModal = () => {
@@ -39,17 +43,20 @@ function TeamSearch() {
   useEffect(() => {
     //제일 처음
     dispatch(teamActions.getSearchAllTeamDB());
-    setSearchedList(allTeam);
   }, []);
-  const onSubmitFilter = (value) => {
+  useEffect(() => {
     dispatch(
       teamActions.getSearchTeamDB(
-        value
+        filterValue, currentPage
       )
     );
-    setSearchedList(filteredList);
-    console.log(filteredList)
+  }, [filterValue, currentPage])
+  const onchangePage = (page) => {
+    setCurrentPage(page);
+  };
+  const onSubmitFilter = (value) => {
     setFilterValue(value);
+    setCurrentPage(1)
   }
   return (
     <>
@@ -85,9 +92,8 @@ function TeamSearch() {
                 </HeaderWrap>
 
               </MainHeader>
-
               <Main>
-                {searchedList.length === 0 ? (
+                {!filteredList ? (
                   <>
                     {/* 항목 없을때 */}
                     <EmptyBox>
@@ -97,13 +103,15 @@ function TeamSearch() {
                   </>
                 ) : (
                   <>
-                    {searchedList.map((val, idx) => {
+                    {filteredList.map((val, idx) => {
                       return (
                         <CardViewTeam teamInfo={val} key={idx}
                         />
                       )
                     })}
-
+                    <Pagination
+                      defaultCurrent={1} current={currentPage} total={Math.floor(teamTotalNum / 10) + 1}
+                      onChange={(value) => { onchangePage(value) }} />
                   </>
                 )}
               </Main>

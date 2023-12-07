@@ -14,7 +14,7 @@ import ModalsProvider from './components/modal/ModalsProvider';
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export let persistor = persistStore(store);
-axios.defaults.withCredentials = true; // withCredentials 전역 설정
+// axios.defaults.withCredentials = true; // withCredentials 전역 설정
 
 
 ReactModal.setAppElement('#root');

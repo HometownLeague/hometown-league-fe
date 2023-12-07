@@ -9,8 +9,8 @@ function KakaoMap({searchplace,setLocation}) {
 
   const onClickMarker=(place)=>{ 
    
-    const lat = place.y; // 위도
-    const lng = place.x; // 경도
+    const lat = Number(place.y); // 위도
+    const lng = Number(place.x); // 경도
     const address = place.address_name; // 도로명 주소
     const roadAddress = place.road_address_name; // 지번 주소
     let legalDongCode =''
@@ -26,7 +26,7 @@ function KakaoMap({searchplace,setLocation}) {
         const region = data.documents[0];
         legalDongCode = region.code;
         setLocation({
-        spot:content,
+        name:content,
         latitude:lat,
         longitude:lng,
         legalCode:legalDongCode,
@@ -36,7 +36,7 @@ function KakaoMap({searchplace,setLocation}) {
       } else {
         console.error('법정동 정보를 찾을 수 없습니다.');
         setLocation({
-        spot:content,
+        name:content,
         latitude:lat,
         longitude:lng,
         legalCode:"noCode",

@@ -30,7 +30,7 @@ function TeamManagement() {
 
   const alert = () => {
     Swal.fire({
-      html: `원활한 매칭을 위해<br/>팀은 2개만 만들 수 있어요 😸`,
+      html: `원활한 매칭을 위해<br/>팀은 4개만 만들 수 있어요 😸`,
       confirmButtonColor: "rgb(118, 118, 118)",
     });
   };
@@ -91,7 +91,7 @@ function TeamManagement() {
         <IconBox>
           {!isEditingNewTeam && (
             <>
-              {teamList && teamList.length >= 2 ? (
+              {teamList && teamList.length >= 4 ? (
                 <IconBox onClick={alert}>
                   <FontAwesomeIcon icon={faPeopleGroup} style={{ color: "#e3344e", fontSize: 45 }} />
                   <FontAwesomeIcon icon={faPlus} />

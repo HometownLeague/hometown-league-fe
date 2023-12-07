@@ -28,14 +28,15 @@ const updateTeam = createAction(UPDATE_TEAM, (team) => ({ team }));
 const updateTeamOwner = createAction(UPDATE_TEAM_OWNER, (teamId, newOwnerId) => ({ teamId, newOwnerId }));
 const leaveTeam = createAction(LEAVE_TEAM, (team) => ({ team }));
 const loading = createAction(LOADING, (isLoading) => ({ isLoading }));
-const getSearchTeam = createAction(GET_QUERY_TEAM, (filteredTeamlist) => ({ filteredTeamlist }));
-const getSearchAllTeam = createAction(GET_SEARCH_ALL_TEAM, (allTeamList) => ({ allTeamList }));
+const getSearchTeam = createAction(GET_QUERY_TEAM, (searchedTeamList, teamTotalNum) => ({ searchedTeamList, teamTotalNum }));
+const getSearchAllTeam = createAction(GET_SEARCH_ALL_TEAM, (searchedTeamList, teamTotalNum) => ({ searchedTeamList, teamTotalNum }));
 
 const initialState = {
-  allTeamList: [],
   userTeams: [],
-  filteredTeamlist: [],
+  searchedTeamList: [],
+  teamTotalNum: 0,
   isLoading: false,
+  view_loading: false
 };
 
 //SECTION - 유저의 팀 정보 조회. 쿠키로 로그인 세션이 넘어감.
@@ -110,7 +111,9 @@ const createTeamDB = (teamInfo, img) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
             axios
-              .patch(`${api}/image/team`, { imageFile: img, id: response.data.data.id })
+              .patch(`${api}/image/team`, { imageFile: img, id: response.data.data.id }, {
+                "Content-Type": "multipart/form-data"
+              })
               .then((response) => {
                 console.log(img, response.data.data.id)
                 switch (response.data.responseCode.code) {
@@ -429,11 +432,11 @@ const getSearchAllTeamDB = () => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
     axios
-      .get(`${api}/team?`)
+      .get(`${api}/team?page=1`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            dispatch(getSearchAllTeam(response.data.data));
+            dispatch(getSearchAllTeam(response.data.data, response.data.responseCode.count));
             break;
           case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
             localStorage.clear()
@@ -457,15 +460,15 @@ const getSearchAllTeamDB = () => {
 };
 
 // 쿼리에 맞는 팀목록 조회
-const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, keyword }) => {
+const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, keyword }, pageNo) => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
     axios
-      .get(`${api}/team?${province ? `address-si=` + province : ''}${city ? `&address-gungu=` + city : ''}&${fromScore ? `&from-score=` + fromScore : ''}${toScore ? `&to-score=` + toScore : ''}${dayOfWeek ? `&day-of-Week=` + dayOfWeek : ''}${time ? `&time=` + time : ''}${keyword ? `&name=` + keyword : ''}`)
+      .get(`${api}/team?page=${pageNo}${province ? `&address-si=` + province : ''}${city ? `&address-gungu=` + city : ''}${fromScore ? `&from-score=` + fromScore : ''}${toScore ? `&to-score=` + toScore : ''}${dayOfWeek ? `&day-of-Week=` + dayOfWeek : ''}${time ? `&time=` + time : ''}${keyword ? `&name=` + keyword : ''}`)
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            dispatch(getSearchTeam(response.data.data));
+            dispatch(getSearchTeam(response.data.data, response.data.responseCode.count));
             break;
           case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
             localStorage.clear()
@@ -551,12 +554,14 @@ export default handleActions(
       }),
     [GET_SEARCH_ALL_TEAM]: (state, action) =>
       produce(state, (draft) => {
-        draft.allTeamList = action.payload.allTeamList;
+        draft.searchedTeamList = action.payload.searchedTeamList;
+        draft.teamTotalNum = action.payload.teamTotalNum;
         draft.isLoading = false;
       }),
     [GET_QUERY_TEAM]: (state, action) =>
       produce(state, (draft) => {
-        draft.filteredTeamlist = action.payload.filteredTeamlist;
+        draft.searchedTeamList = action.payload.searchedTeamList;
+        draft.teamTotalNum = action.payload.teamTotalNum;
         draft.isLoading = false;
       }),
     [LOADING]: (state, action) =>

@@ -111,21 +111,28 @@ const logoutDB = () => {
   return function (dispatch, { history }) {
     axios.delete(`${api}/user/logout`)
       .then((response) => {
-        axios.defaults.headers.common["authorization"] = null;
-        delete axios.defaults.headers.common["authorization"];
-        localStorage.clear()
-        dispatch(logOut())
-        dispatch(replace("/"));
-        Swal.fire({
-          text: '로그아웃 되었습니다.',
-          confirmButtonColor: '#FFCC70',
-          confirmButtonText: '확인',
-        });
+        // axios.defaults.headers.common["authorization"] = null;
+        // delete axios.defaults.headers.common["authorization"];
+        // localStorage.clear()
+        // dispatch(logOut())
+        // dispatch(replace("/"));
+        // Swal.fire({
+        //   text: '로그아웃 되었습니다.',
+        //   confirmButtonColor: '#FFCC70',
+        //   confirmButtonText: '확인',
+        // });
       })
       .catch((error) => {
         console.log(error.responseponse);
       });
-
+    localStorage.clear()
+    dispatch(logOut())
+    dispatch(replace("/"));
+    Swal.fire({
+      text: '로그아웃 되었습니다.',
+      confirmButtonColor: '#FFCC70',
+      confirmButtonText: '확인',
+    });
   };
 };
 

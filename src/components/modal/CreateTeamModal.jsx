@@ -11,7 +11,7 @@ function CreateTeamModal({onSubmit, onClose,teamId,teamData}) {
 
   return (
   <ReactModal isOpen onRequestClose={handleClickCancel}>
-    <TeamForm onSubmit={onSubmit} onClose={onClose} isUpdate='true' teamId={teamId} teamData={teamData}/>
+    <TeamForm onSubmit={onSubmit} onClose={onClose} isUpdate={true}  teamId={teamId} teamData={teamData}/>
   </ReactModal>
   );
 }
