@@ -116,8 +116,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
 
 //TODO - 장소 삭제
   const removeField = (index) => {
-    handleChangeTimeFields();
-    // 필드를 삭제하면 해당 인덱스의 값을 배열에서 제거
+
     const updatedList = [...locationList];
     updatedList.splice(index, 1);
     setLocationList(updatedList);
@@ -140,20 +139,20 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
     // console.log(formData) // FormData {}
     // for (const keyValue of formData) console.log(keyValue); // ["img", File] File은 객체
 }
-const handleChangeTimeFields = ({dayOfWeek,playTimeFrom,playTimeTo},index) => {
+// const handleChangeTimeFields = ({dayOfWeek,playTimeFrom,playTimeTo},index) => {
 
-  // 시작 시간이 종료 시간보다 늦은 경우, 값을 바꿉니다.
-  if (playTimeFrom && playTimeTo && playTimeFrom >= playTimeTo) {
-    form.setFieldsValue({
-        'time[index].playTimeTo': playTimeTo,
-        'time[index].playTimeFrom': playTimeFrom,
-      });
-    }
-  if (playTimeFrom===playTimeTo) {
-    return Promise.reject(new Error('시작 시간과 종료 시간은 30분 이상 차이나야 합니다.'));
-  }
-  return Promise.resolve();
-}
+//   // 시작 시간이 종료 시간보다 늦은 경우, 값을 바꿉니다.
+//   if (playTimeFrom && playTimeTo && playTimeFrom >= playTimeTo) {
+//     form.setFieldsValue({
+//         'time[index].playTimeTo': playTimeTo,
+//         'time[index].playTimeFrom': playTimeFrom,
+//       });
+//     }
+//   if (playTimeFrom===playTimeTo) {
+//     return Promise.reject(new Error('시작 시간과 종료 시간은 30분 이상 차이나야 합니다.'));
+//   }
+//   return Promise.resolve();
+// }
   
   // submit함수
   const handleClickSubmit =(values) => {
@@ -250,16 +249,18 @@ const handleChangeTimeFields = ({dayOfWeek,playTimeFrom,playTimeTo},index) => {
             // 시작 시간이 종료 시간보다 늦은 경우, 값을 바꿉니다.
             timeArray.forEach((time, index) => {
               const dayOfWeek = time?.dayOfWeek;
-              const playTimeFrom = time?.playTimeFrom;
-              const playTimeTo = time?.playTimeTo;
+              const playTimeFrom = time?.playTimeFrom.format('HHmm');
+              const playTimeTo = time?.playTimeTo.format('HHmm');
               if (playTimeFrom && playTimeTo && playTimeFrom===playTimeTo) {
+                console.log(time)
                 return Promise.reject(new Error('시작 시간과 종료 시간은 30분 이상 차이나야 합니다.'));
               }
               // Check if playTimeFrom is later than playTimeTo
               if (playTimeFrom && playTimeTo && playTimeFrom >= playTimeTo) {
                 // Swap values
-                timeArray[index].playTimeFrom = playTimeTo;
-                timeArray[index].playTimeTo = playTimeFrom;
+                const temp=time?.playTimeFrom;
+                timeArray[index].playTimeFrom =time?.playTimeTo;
+                timeArray[index].playTimeTo = temp;
               }
               // Generate a unique key for the time slot
               const timeKey = `${dayOfWeek}_${playTimeFrom}_${playTimeTo}`;
