@@ -21,31 +21,20 @@ const customStyles = {
 };
 const api = process.env.REACT_APP_API_URL;
 
-function DecideJoinRequestModal({onSubmit, onClose,teamId}) {
+function DecideJoinRequestModal({onSubmit, onClose,teamId,playerName,requestId}) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
-  const [owner, setOwner] =useState("");
+  const [isAccept,SetIsAccept] =useState();
 
-  const [teamPlayers, setTeamPlayers] = useState([])
-
-  const handleClickPlayer = (playerId) => {
-    setOwner(playerId);
-  };
   const handleClickCancel = () => {
     onClose();
   };
-  //주장 변경API
+  //가입 승인/거부 API
   const handleClickSubmit =()=>{
-    dispatch(teamAction.updateTeamOwnerDB(teamId,owner));
-    onSubmit();
-    window.location.reload();
-  }
-
-  useEffect(()=>{
-    axios.get(`${api}/team/${teamId}/players`)
+    axios.get(`${api}/team/accept`)
     .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
-          setTeamPlayers(response.data.data.users)
+          
         } else {
           Swal.fire({
             text: "소속선수 조회 실패",
@@ -54,35 +43,25 @@ function DecideJoinRequestModal({onSubmit, onClose,teamId}) {
         }
       })
       .catch((err) => console.log(err));
-  },[])
+    onSubmit();
+    window.location.reload();
+  }
   return (
     <ReactModal isOpen style={customStyles} onRequestClose={handleClickCancel}
     shouldCloseOnOverlayClick={true}>
-      <h4>주장 변경</h4>
-      <Form onFinish={handleClickSubmit}>
-        {teamPlayers.map(p => {
-          if(p.id==user.id)return(<></>)
-          return(
-          <Player key={p.id} onClick={() => handleClickPlayer(p.id)} active={p.id === owner}>
-            {/* <Image
-              src={Playerimg}
-              width="30px"
-              height="40px"
-              contain
-            /> */}
-            <PlayerNameBox>
-            <Text bold title>{p.nickname}</Text>
-            </PlayerNameBox>
-          </Player>
-        )
-        })}
+      <h4>{playerName}의 가입 요청을 승인하시겠습니까?</h4>
+      <Form >
       <Form.Item style={{ textAlign: 'center', marginTop:10}}>
         <Button type="primary" htmlType="submit">
-          Change
+          예
         </Button><span>  </span>
+        <Button type="primary" htmlType="submit">
+          아니오
+        </Button>
         <Button type="primary" onClick={handleClickCancel}danger >
           Cancel
         </Button>
+
       </Form.Item>
     </Form>
     </ReactModal>
