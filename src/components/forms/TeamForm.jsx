@@ -74,16 +74,15 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
 
   // teamname 중복 검사
   const onBlurTeamname =useCallback(() => {
-    console.log(isUpdate)
-    if (form.getFieldError('name').length === 0 && form.getFieldValue('name')) {
+    if (form.getFieldError('teamName').length === 0 && form.getFieldValue('teamName')) {
       axios({
         method: "get",
-        url: `${api}/team/is-duplicate/${form.getFieldValue('name')}`,
+        url: `${api}/team/is-duplicate/${form.getFieldValue('teamName')}`,
       })
         .then((response) => {
           if (response.data.data === 'Y') {
             form.setFields([{
-              name: 'name',
+              name: 'teamName',
               errors: ['이미 사용중인 팀 이름입니다.'],
             }]);
           }
@@ -139,21 +138,6 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
     // console.log(formData) // FormData {}
     // for (const keyValue of formData) console.log(keyValue); // ["img", File] File은 객체
 }
-// const handleChangeTimeFields = ({dayOfWeek,playTimeFrom,playTimeTo},index) => {
-
-//   // 시작 시간이 종료 시간보다 늦은 경우, 값을 바꿉니다.
-//   if (playTimeFrom && playTimeTo && playTimeFrom >= playTimeTo) {
-//     form.setFieldsValue({
-//         'time[index].playTimeTo': playTimeTo,
-//         'time[index].playTimeFrom': playTimeFrom,
-//       });
-//     }
-//   if (playTimeFrom===playTimeTo) {
-//     return Promise.reject(new Error('시작 시간과 종료 시간은 30분 이상 차이나야 합니다.'));
-//   }
-//   return Promise.resolve();
-// }
-  
   // submit함수
   const handleClickSubmit =(values) => {
 
@@ -167,7 +151,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
     formData.append('files',logofile);
     // 기본 데이터
     const basicData = {
-      name: values.name,
+      name: values.teamName,
       kind: 1,
       description: values.description,
     };
@@ -195,6 +179,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
         owner: user.id,
       };
       console.log(data)
+      console.log(formData)
       dispatch(teamAction.createTeamDB(data,formData));
       onClose();
       //window.location.reload();
@@ -226,7 +211,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
   {isUpdate===true?
   <Text  size="20px" title bold>팀 정보 수정하기</Text>:
   <Text  size="20px" title bold>새로운 팀 만들기</Text>}
-    <Form.Item label="팀 명"  name="name"
+    <Form.Item label="팀 명"  name="teamName"
      rules={[{ validator: validateTeamname }]} validateTrigger= 'onBlur' hasFeedback>
       <Input placeholder="팀 명" onBlur={onBlurTeamname}/>
     </Form.Item>
@@ -236,7 +221,6 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
       </Select>
     </Form.Item>
 
-    {/* //FIXME - 시간 하나 이상 설정*/}
     <Form.Item label="활동 시간대" >
       <Form.List name='time'
       rules={[
@@ -273,6 +257,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
               // Add the time to the set
               uniqueTimes.add(timeKey);
             });
+            return Promise.resolve();
           },
         },
       ]}
@@ -365,7 +350,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
                 align="baseline"
               >
                 <Form.Item  {...restField}
-                  name={[name,"spot"]} >
+                  name={[name,"name"]} >
                     <Input  disabled="true"/>
                   </Form.Item>
                   <MinusCircleOutlined onClick={() =>{
@@ -388,7 +373,7 @@ function TeamForm({isCreating,onSubmit,onClose,isUpdate,teamId,teamData}) {
       </Form.List>
 
     </Form.Item>
-    <Form.Item label="팀 소개글" name="description">
+    <Form.Item label="팀 소개글" name="description" rules={[{ required: true, message: '소개글은 필수 항목입니다.' }]}>
       <TextArea rows={4} placeholder='팀 소개글을 작성해주세요'/>
     </Form.Item>
 

@@ -5,12 +5,15 @@ import CreateTeamModal from './CreateTeamModal';
 import SearchLocationModal from './SearchLocationModal';
 import ChangeOwnerModal from './ChangeOwnerModal';
 import GameResultInputModal from './GameResultInputModal'
+import DecideJoinRequestModal from './DecideJoinRequestModal';
+
 export const modals = {
   loginModal: LoginModal,
   createTeamModal: CreateTeamModal,
   searchLocationModal: SearchLocationModal,
   changeOwnerModal: ChangeOwnerModal,
-  gameResultInputModal: GameResultInputModal
+  gameResultInputModal: GameResultInputModal,
+  decideJoinRequestModal: DecideJoinRequestModal
 };
 const Modals = () => {
   const openedModals = useContext(ModalsStateContext);

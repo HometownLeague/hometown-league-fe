@@ -2,53 +2,49 @@
 import React, { useState,useEffect,useRef } from 'react';
 import axios from 'axios';
 
-function KakaoMap({searchplace,setLocation}) {
+function KakaoMap({searchplace,setName, setLat, setLng, setLegalCode, setJibun, setRoad}) {
   const mapRef = useRef(null);
   const [markers, setMarkers] = useState([]); // 마커 배열 추가
   const [selectedMarker, setSelectedMarker] = useState(null); // 선택한 마커 상태 추가
-
   const onClickMarker=(place)=>{ 
-   
-    const lat = Number(place.y); // 위도
-    const lng = Number(place.x); // 경도
-    const address = place.address_name; // 도로명 주소
-    const roadAddress = place.road_address_name; // 지번 주소
-    let legalDongCode =''
-    const content=place.place_name;
+    setLat(Number(place.y)); // 위도
+    setLng(Number(place.x)); // 경도
+    setJibun(place.address_name); // 지번 주소
+    setRoad(place.road_address_name); // 도로명 주소
+    setName(place.place_name);
     axios({
       method: "get",
-      url: `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${lng}&y=${lat}`,
+      url: `https://dapi.kakao.com/v2/local/geo/coord2regioncode.json?x=${place.x}&y=${place.y}`,
       headers:{authorization:  "KakaoAK "+process.env.REACT_APP_KAKAO_REST_API_KEY },
     })
     .then(response => {
       const data = response.data;
       if (data.documents && data.documents.length > 0) {
-        const region = data.documents[0];
-        legalDongCode = region.code;
-        setLocation({
-        name:content,
-        latitude:lat,
-        longitude:lng,
-        legalCode:legalDongCode,
-        jibunAddress:roadAddress,
-        roadAddress:address
-        })
+        setLegalCode(data.documents[0].code);
       } else {
         console.error('법정동 정보를 찾을 수 없습니다.');
-        setLocation({
-        name:content,
-        latitude:lat,
-        longitude:lng,
-        legalCode:"noCode",
-        jibunAddress:roadAddress,
-        roadAddress:address
-        })
+      }
+    })
+    .catch((error) => {
+      console.error('API 호출 중 오류 발생:', error);
+    });
+    axios({
+      method: "get",
+      url: `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${place.x}&y=${place.y}`,
+      headers:{authorization:  "KakaoAK "+process.env.REACT_APP_KAKAO_REST_API_KEY },
+    })
+    .then(response => {
+      const data = response.data;
+      if(data.meta.total_count===1){
+        data.documents[0].address.address_name&&setJibun(data.documents[0].address.address_name)
+        data.documents[0].road_address.address_name&&setRoad(data.documents[0].road_address.address_name)
       }
     })
     .catch((error) => {
       console.error('API 호출 중 오류 발생:', error);
     });
   }
+  
   // 선택한 마커 색상 변경을 위한 함수
   const getDefaultMarkerImage = () =>
   new window.kakao.maps.MarkerImage(
@@ -131,7 +127,7 @@ function KakaoMap({searchplace,setLocation}) {
         map.setBounds(bounds);
       }
     });
-  }, [searchplace, setLocation]);
+  }, [searchplace,]);
 
   return <div ref={mapRef} style={{ width: "100%", height: "400px" }} />;
 };

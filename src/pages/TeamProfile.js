@@ -28,6 +28,7 @@ function TeamProfile() {
   const dispatch = useDispatch();
   const [teamData, setTeamData] = useState({})
   const [teamPlayers, setTeamPlayers] = useState([])
+  const [joinReuest, setJoinRequest] = useState([])
   const user = useSelector((state) => state.user.user);
   const alluserteam = useSelector((state) => state.team.userTeams);
   // const isLoading = useSelector((state) => state.teamData.isLoading);
@@ -57,16 +58,12 @@ function TeamProfile() {
   const onClickMatching = () => {
     dispatch(matchAction.requestMatchingDB(teamId))
   }
+  const onClickJoinRequest = (requestId, playerName) => {
+    openModal(modals.decideJoinRequestModal, { teamId: teamId, playerName: playerName, requestId: requestId, onSubmit: (value) => { console.log(value) } })
+  }
   useEffect(() => {
-    //TODO - 유저의 팀 어떻게 가져올지 ..
-    // dispatch(teamAction.getTeamDetailDB(teamId));
-    // const data = alluserteam.filter(team => team.id == teamId)
-    // console.log(alluserteam)
-    // setTeamData(data[0])
-    axios({
-      method: "get",
-      url: `${api}/team/${teamId}`,
-    })
+    axios
+      .get(`${api}/team/${teamId}`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamData(response.data.data)
@@ -78,10 +75,8 @@ function TeamProfile() {
         }
       })
       .catch((err) => console.log(err));
-    axios({
-      method: "get",
-      url: `${api}/team/${teamId}/players`,
-    })
+    axios
+      .get(`${api}/team/${teamId}/players`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamPlayers(response.data.data.users)
@@ -90,6 +85,14 @@ function TeamProfile() {
             text: "소속선수 조회 실패",
             confirmButtonColor: "#E3344E",
           });
+        }
+      })
+      .catch((err) => console.log(err));
+    axios
+      .get(`${api}/team/${teamId}/join-request`)
+      .then((response) => {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
+          setJoinRequest(response.data.data)
         }
       })
       .catch((err) => console.log(err));
@@ -146,9 +149,6 @@ function TeamProfile() {
                       매칭 요청
                     </Button>
                   </>)}
-
-
-
                 </ButtonBox>
               ) : (
                 <Button radius="5px 5px 5px 5px"
@@ -205,9 +205,24 @@ function TeamProfile() {
                   <Text size="10px" center>23-09-09</Text>
                 </Grid>
               </Grid>
-
             </BoardList>
-
+            <BoardList>
+              <BoxTitle>가입 요청 목록</BoxTitle>
+              <Grid is_flex width="100%">
+                {joinReuest.map(p => (
+                  // <AnnouncementContent key={p.id} onclick={onClickJoinRequest(p.id, p.nickname)}>
+                  <AnnouncementContent key={p.id}>
+                    <Text size="11px" center margin="3px 10px 0 10px" title>{p.nickname}</Text>
+                    <Text margin='0 0px 0px 10px' size="12px">
+                      |{p.profileDescription}
+                    </Text>
+                    <Grid is_flex width="60px">
+                      <Text size="10px" center>{p.requestDate}</Text>
+                    </Grid>
+                  </AnnouncementContent>
+                ))}
+              </Grid>
+            </BoardList>
           </Content>
         </Layout>
 

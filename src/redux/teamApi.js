@@ -327,7 +327,7 @@ const joinTeamRequestDB = (teamId) => {
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            Swal.fire("가입 완료!");
+            Swal.fire("요청 완료!");
 
             break;
           case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
