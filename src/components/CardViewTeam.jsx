@@ -10,6 +10,7 @@ import { modals } from './modal/Modals';
 import {Trophy } from "../assets/images";
 import { Text } from './elements';
 import { actionCreators as teamAction } from "../redux/teamApi";
+import { teamDefalutImg } from '../assets/images';
 
 function CardViewTeam({teamInfo}) {
 
@@ -45,14 +46,20 @@ function CardViewTeam({teamInfo}) {
   return (
     <>
       <CardWrap className='wrap' onClick={onClickTeamCard}>
-          <Img
-            src={teamInfo?.ciPath}
-            alt='img'
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src =Trophy;
-            }}
-          />
+      {teamInfo.ciPath ? (
+              <Img
+                src={teamInfo.ciPath}
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />
+            ) : (
+              <Img
+                src={teamDefalutImg}
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />)}
           <TextBox>
             <SportKind>축구</SportKind>
             <div>
@@ -86,7 +93,6 @@ const CardWrap = styled.div`
   border-radius: 10px;
   box-shadow: 0px 10px 15px #e0e0e0;
   max-width: 240px;
-  height: 150px;
   margin-bottom: 10px;
   cursor: pointer;
   position: relative;
@@ -107,7 +113,7 @@ const CardWrap = styled.div`
 const Img = styled.img`
   width: 100%;
   object-fit:cover;
-  height: 192px;
+  height: 102px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   &:hover {

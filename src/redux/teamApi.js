@@ -17,7 +17,7 @@ const UPDATE_TEAM = "UPDATE_TEAM";
 const UPDATE_TEAM_OWNER = "UPDATE_TEAM_OWNER";
 const LEAVE_TEAM = 'LEAVE_TEAM';
 const GET_SEARCH_ALL_TEAM = 'GET_SEARCH_ALL_TEAM';
-
+const GET_RANK = 'GET_RANK';
 
 const getUserTeams = createAction(GET_USER_TEAMS, (userTeams) => ({ userTeams }));
 const getTeamDetail = createAction(GET_TEAM_DETAIL, (team) => ({ team }));
@@ -30,10 +30,12 @@ const leaveTeam = createAction(LEAVE_TEAM, (team) => ({ team }));
 const loading = createAction(LOADING, (isLoading) => ({ isLoading }));
 const getSearchTeam = createAction(GET_QUERY_TEAM, (searchedTeamList, teamTotalNum) => ({ searchedTeamList, teamTotalNum }));
 const getSearchAllTeam = createAction(GET_SEARCH_ALL_TEAM, (searchedTeamList, teamTotalNum) => ({ searchedTeamList, teamTotalNum }));
+const getRank = createAction(GET_RANK, (rank) => ({ rank }))
 
 const initialState = {
   userTeams: [],
   searchedTeamList: [],
+  rank: [],
   teamTotalNum: 0,
   isLoading: false,
   view_loading: false
@@ -284,18 +286,17 @@ const updateTeamDB = (bData, tData, lData) => {
   };
 };
 //팀에 멤버 추가하기
-const addMemberDB = (teamId, joinUserId) => {
+const addMemberDB = (teamId, joinRequestId, playerName) => {
   return function (dispatch, { history }) {
     axios
       .post(`${api}/team/accept`, {
         teamId: teamId,
-        joinRequestId: joinUserId
+        joinRequestId: joinRequestId
       })
       .then((response) => {
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
-            Swal.fire("가입 완료!");
-
+            Swal.fire(`${playerName}님도 이제 한 팀이에요!`, "", "success");
             break;
           case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
             localStorage.clear()
@@ -459,7 +460,7 @@ const getSearchAllTeamDB = () => {
   };
 };
 
-// 쿼리에 맞는 팀목록 조회
+//!SECTION 쿼리에 맞는 팀목록 조회
 const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, keyword }, pageNo) => {
   return function (dispatch, { history }) {
     dispatch(loading(true));
@@ -469,6 +470,37 @@ const getSearchTeamDB = ({ province, city, fromScore, toScore, dayOfWeek, time, 
         switch (response.data.responseCode.code) {
           case process.env.REACT_APP_API_RES_CODE_SUCESS:
             dispatch(getSearchTeam(response.data.data, response.data.responseCode.count));
+            break;
+          case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
+            localStorage.clear()
+            dispatch(userAction.logOut())
+            Swal.fire({
+              text: "로그인 세션이 만료되었습니다",
+              confirmButtonColor: '#E3344E',
+              confirmButtonText: '확인',
+            });
+            break;
+          default:
+            Swal.fire({
+              text: response.data.responseCode.message,
+              confirmButtonColor: "#E3344E",
+            });
+            break;
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+};
+//!SECTION 랭킹 조회
+const getRankDB = (count) => {
+  return function (dispatch, { history }) {
+    dispatch(loading(true));
+    axios
+      .get(`${api}/rank/${count}`)
+      .then((response) => {
+        switch (response.data.responseCode.code) {
+          case process.env.REACT_APP_API_RES_CODE_SUCESS:
+            dispatch(getRank(response.data.data));
             break;
           case process.env.REACT_APP_API_RES_CODE_NOT_SESSION:
             localStorage.clear()
@@ -564,6 +596,11 @@ export default handleActions(
         draft.teamTotalNum = action.payload.teamTotalNum;
         draft.isLoading = false;
       }),
+    [GET_RANK]: (state, action) =>
+      produce(state, (draft) => {
+        draft.rank = action.payload.rank;
+        draft.isLoading = false;
+      }),
     [LOADING]: (state, action) =>
       produce(state, (draft) => {
         draft.isLoading = action.payload.isLoading;
@@ -589,6 +626,8 @@ const actionCreators = {
   updateTeamDB,
   updateTeamOwnerDB,
   leaveTeamDB,
+  getRankDB,
+  getRank,
   loading,
 };
 

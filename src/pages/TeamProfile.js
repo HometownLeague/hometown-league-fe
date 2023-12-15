@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 
 import { actionCreators as teamAction } from "../redux/teamApi";
 import { actionCreators as matchAction } from "../redux/matchApi";
-import { Playerimg, Trophy } from "../assets/images";
+import { playerDefalutImg, Trophy, medal, teamDefalutImg } from "../assets/images";
 import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
@@ -59,7 +59,20 @@ function TeamProfile() {
     dispatch(matchAction.requestMatchingDB(teamId))
   }
   const onClickJoinRequest = (requestId, playerName) => {
-    openModal(modals.decideJoinRequestModal, { teamId: teamId, playerName: playerName, requestId: requestId, onSubmit: (value) => { console.log(value) } })
+    Swal.fire({
+      title: `${playerName}의 가입 요청을 승인하시겠습니까?`,
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "가입 승인",
+      confirmButtonColor: "#FFCC70",
+      denyButtonText: `가입 거절`
+    }).then((result) => {
+      if (result.isConfirmed) {
+        teamAction.addMemberDB(teamId, requestId, playerName)
+      } else if (result.isDenied) {
+        Swal.fire("가입요청을 거절하셨습니다.", "", "info");
+      }
+    });
   }
   useEffect(() => {
     axios
@@ -105,14 +118,25 @@ function TeamProfile() {
         {/* 왼쪽 바 */}
         <Layout hasSider>
           <Sider style={siderStyle}>
-            <Image
-              src={Trophy}
-              width="220px"
-              height="80px"
-              margin="30px 0 0 0"
-              radius="100%"
-              contain
-            />
+            {teamData.ciPath ? (
+              <Image
+                src={teamData.ciPath}
+                width="220px"
+                height="80px"
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />
+            ) : (
+              <Image
+                src={teamDefalutImg}
+                width="220px"
+                height="80px"
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />)}
+
             <TeamNameBox>
               <Text size="20px" color='black' bold title>
                 {teamData.name}
@@ -177,12 +201,21 @@ function TeamProfile() {
               <Grid>
                 {teamPlayers.map(p => (
                   <Player key={p.id}>
-                    <Image
-                      src={Playerimg}
-                      width="30px"
-                      height="40px"
-                      contain
-                    />
+                    {p.ciPath ? (
+                      <Image
+                        src={p.ciPath}
+                        width="30px"
+                        height="40px"
+                        contain
+                      />
+                    ) : (
+                      <Image
+                        src={playerDefalutImg}
+                        width="30px"
+                        height="40px"
+                        contain
+                      />)}
+
                     <Text bold title>
                       {p.nickname}
                     </Text>
@@ -210,8 +243,8 @@ function TeamProfile() {
               <BoxTitle>가입 요청 목록</BoxTitle>
               <Grid is_flex width="100%">
                 {joinReuest.map(p => (
-                  // <AnnouncementContent key={p.id} onclick={onClickJoinRequest(p.id, p.nickname)}>
-                  <AnnouncementContent key={p.id}>
+                  <AnnouncementContent key={p.id} onClick={() => onClickJoinRequest(p.id, p.nickname)}>
+
                     <Text size="11px" center margin="3px 10px 0 10px" title>{p.nickname}</Text>
                     <Text margin='0 0px 0px 10px' size="12px">
                       |{p.profileDescription}
