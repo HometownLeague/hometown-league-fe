@@ -11,6 +11,8 @@ import Swal from 'sweetalert2';
 import { Text,Grid,Image, Button } from "./elements";
 import { actionCreators as matchActions } from "../redux/matchApi";
 import {KakaoMap} from '../components';
+import useModals from './modal/useModal';
+import { modals } from './modal/Modals';
 
 function MatchingInfo({onClose,matchingRequestId,teamId}) {
   const dispatch = useDispatch();
@@ -57,8 +59,14 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
       //수락 전인 매칭=> 매칭 거절
       dispatch(matchActions.refuseMatchingDB(matchingRequestId))
     }
-    
   }
+
+  const { openModal } = useModals();
+  // 경기 결과 입력 모달 
+  const openResultInputModal=()=>{
+    openModal(modals.gameResultInputModal, { matchingRequestId:matchingRequestId });
+  }
+  
   useEffect(() => {
     dispatch(matchActions.getDetailMatchingDB(matchingRequestId));
     let polling = setInterval(() => {
@@ -170,6 +178,11 @@ function MatchingInfo({onClose,matchingRequestId,teamId}) {
       {matchingData.ourTeam.status==='O'&&(
       <ButtonBox>
         <Button _onClick={onClickNoBtn}>경기 취소</Button>
+      </ButtonBox>
+       )}
+        {matchingData.matchingDetail.matchTimestamp<dayjs({ format: 'YYYYMMDDHHmm' })&&(
+      <ButtonBox>
+        <Button _onClick={openResultInputModal}>경기 결과 입력</Button>
       </ButtonBox>
        )}
 

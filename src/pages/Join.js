@@ -8,13 +8,11 @@ import { Link } from 'react-router-dom';
 import _, { debounce } from 'lodash';
 
 import { actionCreators as userActions } from "../redux/userApi";
-
 import useInput from '../components/useInput';
-
 import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
-
+const api = process.env.REACT_APP_API_URL
 
 const Join = () => {
   const dispatch = useDispatch();
@@ -72,7 +70,7 @@ const Join = () => {
   // nickname 중복 검사
   const onBlurNickname = useCallback(debounce(() => {
     if (form.getFieldError('nickname').length === 0 && form.getFieldValue('nickname')) {
-      axios.get(`/user/is-duplicate?type=nickname&value=${form.getFieldValue('nickname')}`)
+      axios.get(`${api}/user/is-duplicate?type=nickname&value=${form.getFieldValue('nickname')}`)
         .catch((e) => {
           console.error(e);
         }).then((response) => {
@@ -101,7 +99,7 @@ const Join = () => {
   // email 중복 검사
   const onBlurEmail = useCallback(() => {
     if (form.getFieldError('email').length === 0 && form.getFieldValue('email')) {
-      axios.get(`/user/is-duplicate?type=id&value=${form.getFieldValue('email')}`)
+      axios.get(`${api}/user/is-duplicate?type=id&value=${form.getFieldValue('email')}`)
         .catch((e) => {
           console.error(e);
         }).then((response) => {

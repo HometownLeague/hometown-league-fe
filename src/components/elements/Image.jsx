@@ -39,7 +39,7 @@ Image.defaultProps = {
     background-size: ${(props) => props.contain? "contain":"cover"};
     margin:${(props) => props.margin};
     border-radius:${(props) => props.radius};
-    background-color: #ffff;
+    background-color: none;
     `
 
 export default Image;

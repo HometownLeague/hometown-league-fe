@@ -185,8 +185,7 @@ function SearchFilterForm({ onSubmit,defaultValue }) {
         style={{ display: 'flex', marginRight: '22px' }}
       >
         <LocationDiv>
-          <Form.Item name='province'
-            label='활동 지역'>
+          <Form.Item name='province'>
             <Select
               onChange={onChangeProvince}
             placeholder='지역'

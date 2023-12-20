@@ -15,11 +15,12 @@ import dayjs from "dayjs";
 
 import { actionCreators as teamAction } from "../redux/teamApi";
 import { actionCreators as matchAction } from "../redux/matchApi";
-import { Playerimg, Trophy } from "../assets/images";
+import { playerDefalutImg, Trophy, medal, teamDefalutImg } from "../assets/images";
 import useModals from '../components/modal/useModal';
 import { modals } from '../components/modal/Modals';
 
 const { Sider, Content } = Layout;
+const api = process.env.REACT_APP_API_URL
 
 function TeamProfile() {
   const params = useParams()
@@ -27,6 +28,7 @@ function TeamProfile() {
   const dispatch = useDispatch();
   const [teamData, setTeamData] = useState({})
   const [teamPlayers, setTeamPlayers] = useState([])
+  const [joinReuest, setJoinRequest] = useState([])
   const user = useSelector((state) => state.user.user);
   const alluserteam = useSelector((state) => state.team.userTeams);
   // const isLoading = useSelector((state) => state.teamData.isLoading);
@@ -56,16 +58,25 @@ function TeamProfile() {
   const onClickMatching = () => {
     dispatch(matchAction.requestMatchingDB(teamId))
   }
+  const onClickJoinRequest = (requestId, playerName) => {
+    Swal.fire({
+      title: `${playerName}의 가입 요청을 승인하시겠습니까?`,
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: "가입 승인",
+      confirmButtonColor: "#FFCC70",
+      denyButtonText: `가입 거절`
+    }).then((result) => {
+      if (result.isConfirmed) {
+        teamAction.addMemberDB(teamId, requestId, playerName)
+      } else if (result.isDenied) {
+        Swal.fire("가입요청을 거절하셨습니다.", "", "info");
+      }
+    });
+  }
   useEffect(() => {
-    //TODO - 유저의 팀 어떻게 가져올지 ..
-    // dispatch(teamAction.getTeamDetailDB(teamId));
-    // const data = alluserteam.filter(team => team.id == teamId)
-    // console.log(alluserteam)
-    // setTeamData(data[0])
-    axios({
-      method: "get",
-      url: `/team/${teamId}`,
-    })
+    axios
+      .get(`${api}/team/${teamId}`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamData(response.data.data)
@@ -77,10 +88,8 @@ function TeamProfile() {
         }
       })
       .catch((err) => console.log(err));
-    axios({
-      method: "get",
-      url: `/team/${teamId}/players`,
-    })
+    axios
+      .get(`${api}/team/${teamId}/players`)
       .then((response) => {
         if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
           setTeamPlayers(response.data.data.users)
@@ -89,6 +98,14 @@ function TeamProfile() {
             text: "소속선수 조회 실패",
             confirmButtonColor: "#E3344E",
           });
+        }
+      })
+      .catch((err) => console.log(err));
+    axios
+      .get(`${api}/team/${teamId}/join-request`)
+      .then((response) => {
+        if (response.data.responseCode.code === process.env.REACT_APP_API_RES_CODE_SUCESS) {
+          setJoinRequest(response.data.data)
         }
       })
       .catch((err) => console.log(err));
@@ -101,19 +118,30 @@ function TeamProfile() {
         {/* 왼쪽 바 */}
         <Layout hasSider>
           <Sider style={siderStyle}>
-            <Image
-              src={Trophy}
-              width="220px"
-              height="80px"
-              margin="30px 0 0 0"
-              radius="100%"
-              contain
-            />
+            {teamData.ciPath ? (
+              <Image
+                src={`${api}/image-team/${teamData.ciPath}`}
+                width="220px"
+                height="80px"
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />
+            ) : (
+              <Image
+                src={teamDefalutImg}
+                width="220px"
+                height="80px"
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />)}
+
             <TeamNameBox>
               <Text size="20px" color='black' bold title>
                 {teamData.name}
               </Text>
-              {user && teamData.ownerId == user.id && (
+              {user && teamData.ownerId === user.id && (
                 <FontAwesomeIcon icon={faPenToSquare} size='xl' color='black' onClick={openUpdateTeamModal} />
               )}
             </TeamNameBox>
@@ -145,9 +173,6 @@ function TeamProfile() {
                       매칭 요청
                     </Button>
                   </>)}
-
-
-
                 </ButtonBox>
               ) : (
                 <Button radius="5px 5px 5px 5px"
@@ -176,12 +201,21 @@ function TeamProfile() {
               <Grid>
                 {teamPlayers.map(p => (
                   <Player key={p.id}>
-                    <Image
-                      src={Playerimg}
-                      width="30px"
-                      height="40px"
-                      contain
-                    />
+                    {p.ciPath ? (
+                      <Image
+                        src={`${api}/image-user/${p.ciPath}`}
+                        width="30px"
+                        height="40px"
+                        contain
+                      />
+                    ) : (
+                      <Image
+                        src={playerDefalutImg}
+                        width="30px"
+                        height="40px"
+                        contain
+                      />)}
+
                     <Text bold title>
                       {p.nickname}
                     </Text>
@@ -204,9 +238,24 @@ function TeamProfile() {
                   <Text size="10px" center>23-09-09</Text>
                 </Grid>
               </Grid>
-
             </BoardList>
+            <BoardList>
+              <BoxTitle>가입 요청 목록</BoxTitle>
+              <Grid is_flex width="100%">
+                {joinReuest.map(p => (
+                  <AnnouncementContent key={p.id} onClick={() => onClickJoinRequest(p.id, p.nickname)}>
 
+                    <Text size="11px" center margin="3px 10px 0 10px" title>{p.nickname}</Text>
+                    <Text margin='0 0px 0px 10px' size="12px">
+                      |{p.profileDescription}
+                    </Text>
+                    <Grid is_flex width="60px">
+                      <Text size="10px" center>{p.requestDate}</Text>
+                    </Grid>
+                  </AnnouncementContent>
+                ))}
+              </Grid>
+            </BoardList>
           </Content>
         </Layout>
 

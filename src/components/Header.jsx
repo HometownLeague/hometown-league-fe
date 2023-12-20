@@ -15,7 +15,7 @@ import NavHeader from "./NavHeader";
 
 const Header = (props) => {
   const dispatch = useDispatch();
-  const user_info = useSelector((state) => state.user.user);
+  const user = useSelector((state) => state.user.user);
   const spanStyle = {
     lineHeight: "40px",
     color: "rgb(161, 161, 161)",
@@ -61,10 +61,10 @@ const Header = (props) => {
           <StyledLink to="/"><FontAwesomeIcon icon={faFutbol} size='2x'/></StyledLink>
         </LogoArea>
         </StyledLi> */}
-          {user_info ? (
+          {user ? (
             <li style={liSt}>
               <StyledLink to='/'>
-                {user_info.nickname}님
+                {user.nickname}님
               </StyledLink>
               <span style={{ margin: "0 13px" }}>|</span>
             </li>
@@ -80,7 +80,7 @@ const Header = (props) => {
               <span style={{ margin: "0 13px" }}>|</span>
             </li>
           )}
-          {user_info ? (
+          {user ? (
             <>
              <li style={liSt}>
               <StyledLink 

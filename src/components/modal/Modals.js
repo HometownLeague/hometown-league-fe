@@ -4,11 +4,14 @@ import LoginModal from './LoginModal';
 import CreateTeamModal from './CreateTeamModal';
 import SearchLocationModal from './SearchLocationModal';
 import ChangeOwnerModal from './ChangeOwnerModal';
+import GameResultInputModal from './GameResultInputModal'
+
 export const modals = {
   loginModal: LoginModal,
   createTeamModal: CreateTeamModal,
   searchLocationModal: SearchLocationModal,
-  changeOwnerModal: ChangeOwnerModal
+  changeOwnerModal: ChangeOwnerModal,
+  gameResultInputModal: GameResultInputModal,
 };
 const Modals = () => {
   const openedModals = useContext(ModalsStateContext);

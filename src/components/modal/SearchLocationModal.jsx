@@ -20,13 +20,57 @@ const customStyles = {
 function SearchLocationModal({ onSubmit,open, onClose}) {
   const [searchword,setSearchword]= useState("");
   const [value, onChangeValue] = useInput("");
-  const [location,setLocation]=useState({})
-
+  const [name,setName]=useState()
+  const [lat,setLat]=useState()
+  const [lng,setLng]=useState()
+  const [legalCode,setLegalCode]=useState()
+  const [jibun,setJibun]=useState()
+  const [road,setRoad]=useState()
   const handleClickCancel = () => {
     onClose();
   };
   const handleClickSubmit = async ()=>{ 
-    localStorage.setItem("location",JSON.stringify(location))
+    if(road.length>0&&jibun.length>0){
+      localStorage.setItem("location",JSON.stringify({
+        name:name,
+        latitude:lat,
+        longitude:lng,
+        legalCode:legalCode,
+        jibunAddress:jibun,
+        roadAddress:road
+      }))
+    }else if(road.length>0&&jibun.length===0){
+      localStorage.setItem("location",JSON.stringify({
+        name:name,
+        latitude:lat,
+        longitude:lng,
+        legalCode:legalCode,
+        roadAddress:road
+      }))
+    }else if(road.length===0&&jibun.length>0){
+      localStorage.setItem("location",JSON.stringify({
+        name:name,
+        latitude:lat,
+        longitude:lng,
+        legalCode:legalCode,
+        jibunAddress:jibun,
+      }))
+    }else{
+      localStorage.setItem("location",JSON.stringify({
+        name:name,
+        latitude:lat,
+        longitude:lng,
+        legalCode:legalCode,
+      }))
+    }
+    console.log({
+      name:name,
+      latitude:lat,
+      longitude:lng,
+      legalCode:legalCode,
+      jibunAddress:jibun,
+      roadAddress:road
+    })
     onSubmit()
   };
   const submitSearchword=()=>{
@@ -36,7 +80,7 @@ function SearchLocationModal({ onSubmit,open, onClose}) {
   return (
   <ReactModal isOpen  onRequestClose={handleClickCancel} style={customStyles} shouldCloseOnOverlayClick={true} >
     <Input.Search placeholder='장소를 검색하세요.' value={value} onChange={onChangeValue} onSearch={submitSearchword} enterButton/>
-    <KakaoMap searchplace={searchword} setLocation={setLocation}/>
+    <KakaoMap searchplace={searchword} setName={setName} setLat={setLat} setLng={setLng} setLegalCode={setLegalCode} setJibun={setJibun} setRoad={setRoad}/>
     <Button type="primary" onClick={handleClickSubmit} >
       OK
     </Button><span>  </span>

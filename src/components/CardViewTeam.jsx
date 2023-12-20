@@ -1,28 +1,66 @@
 import React from 'react';
 import styled from 'styled-components';
-
-import { useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import Swal from 'sweetalert2';
 
+import useModals from './modal/useModal';
+import { modals } from './modal/Modals';
 import {Trophy } from "../assets/images";
 import { Text } from './elements';
+import { actionCreators as teamAction } from "../redux/teamApi";
+import { teamDefalutImg } from '../assets/images';
+
+const api = process.env.REACT_APP_API_URL
 
 function CardViewTeam({teamInfo}) {
-
   const dispatch = useDispatch();
-
+  const user = useSelector((state) => state.user.user);
+  const { openModal } = useModals();
+  const openLoginModal = () => {
+    openModal(modals.loginModal, { onsubmit: (value) => { console.log(value) } });
+  };
+  const onClickTeamCard=(e)=>{
+    // e.preventdefault();
+    if (!user) {
+      Swal.fire({
+        text: "로그인 후 이용 가능합니다. ",
+        confirmButtonColor: "#E3344E",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          openLoginModal();
+        }
+      })
+    }
+    Swal.fire({
+      text: "팀에 가입 요청을 보내시겠습니까?",
+      confirmButtonColor: "#FFCC70",
+      confirmButtonText:'예',
+      cancelButtonText:'아니오'
+    }).then((responseult) => {
+      if (responseult.isConfirmed) {
+        dispatch(teamAction.joinTeamRequestDB(teamInfo.id));
+      }
+    });
+  }
   return (
     <>
-      <CardWrap className='wrap' >
-          {/* <Img
-            src={teamInfo?.ciPath}
-            alt='img'
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src =Trophy;
-            }}
-          /> */}
+      <CardWrap className='wrap' onClick={onClickTeamCard}>
+      {teamInfo.ciPath ? (
+              <Img
+                src={`${api}/image-team/${teamInfo.ciPath}`}
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />
+            ) : (
+              <Img
+                src={teamDefalutImg}
+                margin="30px 0 0 0"
+                radius="100%"
+                contain
+              />)}
           <TextBox>
             <SportKind>축구</SportKind>
             <div>
@@ -43,7 +81,6 @@ function CardViewTeam({teamInfo}) {
                   <div>
                     <span>{teamInfo?.description}</span> 
                   </div>
-                  
                 </InfoBox>
               </ScoreInfo>
             </div>
@@ -57,7 +94,6 @@ const CardWrap = styled.div`
   border-radius: 10px;
   box-shadow: 0px 10px 15px #e0e0e0;
   max-width: 240px;
-  height: 320px;
   margin-bottom: 10px;
   cursor: pointer;
   position: relative;
@@ -78,7 +114,7 @@ const CardWrap = styled.div`
 const Img = styled.img`
   width: 100%;
   object-fit:cover;
-  height: 192px;
+  height: 102px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   &:hover {

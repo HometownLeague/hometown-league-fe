@@ -14,7 +14,6 @@ const {
   routerMiddleware,
   routerReducer
 } = createReduxHistoryContext({ history: createBrowserHistory() });
-
 const env = process.env.NODE_ENV;
 //devTools 설정
 const composeEnhancers =
