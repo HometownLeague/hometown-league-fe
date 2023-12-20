@@ -12,8 +12,9 @@ import { Text } from './elements';
 import { actionCreators as teamAction } from "../redux/teamApi";
 import { teamDefalutImg } from '../assets/images';
 
-function CardViewTeam({teamInfo}) {
+const api = process.env.REACT_APP_API_URL
 
+function CardViewTeam({teamInfo}) {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
   const { openModal } = useModals();
@@ -48,7 +49,7 @@ function CardViewTeam({teamInfo}) {
       <CardWrap className='wrap' onClick={onClickTeamCard}>
       {teamInfo.ciPath ? (
               <Img
-                src={teamInfo.ciPath}
+                src={`${api}/image-team/${teamInfo.ciPath}`}
                 margin="30px 0 0 0"
                 radius="100%"
                 contain

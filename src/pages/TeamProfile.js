@@ -120,7 +120,7 @@ function TeamProfile() {
           <Sider style={siderStyle}>
             {teamData.ciPath ? (
               <Image
-                src={teamData.ciPath}
+                src={`${api}/image-team/${teamData.ciPath}`}
                 width="220px"
                 height="80px"
                 margin="30px 0 0 0"
@@ -203,7 +203,7 @@ function TeamProfile() {
                   <Player key={p.id}>
                     {p.ciPath ? (
                       <Image
-                        src={p.ciPath}
+                        src={`${api}/image-user/${p.ciPath}`}
                         width="30px"
                         height="40px"
                         contain

@@ -3,8 +3,10 @@ import { useSelector, useDispatch } from "react-redux";
 import styled from "styled-components";
 import { Text, Image,} from "../components/elements";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPersonRunning } from '@fortawesome/free-solid-svg-icons';
+import { teamDefalutImg } from '../assets/images';
 import { actionCreators as teamActions } from "../redux/teamApi";
+
+const api = process.env.REACT_APP_API_URL
 
 function CardViewContent({team,isMatchingView}) {
   const dispatch = useDispatch();
@@ -14,16 +16,21 @@ function CardViewContent({team,isMatchingView}) {
   }, []);
   return (
     <GroupBox key={team.id}>
-      {team.logo ?
+      {team.cipath ?
        <>
-        <Image src={team.logo}
+        <Image src={`${api}/image-team/${team.ciPath}`}
           width="50px"
           height="45px"
           contain />
       </> :
-      <>
-        <FontAwesomeIcon icon={faPersonRunning} />
-      </>}
+      <Image
+      src={teamDefalutImg}
+      width="220px"
+      height="80px"
+      margin="30px 0 0 0"
+      radius="100%"
+      contain
+    />}
       <TextBox>
         <Text size="15px" $title>
           {team.name}
